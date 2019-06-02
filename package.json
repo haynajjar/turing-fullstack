@@ -1,0 +1,43 @@
+{
+  "name": "turing-fullstack",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "tap test/**/*.test.js",
+    "start": "fastify start app.js",
+    "dev": "fastify start -l info -P app.js",
+    "prod": "NODE_ENV=production fastify start app.js",
+    "build": "next build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@material-ui/core": "^4.0.1",
+    "data-prefetch-link": "^1.1.4",
+    "fastify": "^2.0.0",
+    "fastify-auth": "^0.5.0",
+    "fastify-autoload": "^0.6.0",
+    "fastify-bookshelfjs": "^1.0.2",
+    "fastify-caching": "^5.0.0",
+    "fastify-cli": "^1.0.0",
+    "fastify-formbody": "^3.1.0",
+    "fastify-jwt": "^0.10.0",
+    "fastify-multipart": "^1.0.0",
+    "fastify-nextjs": "^4.1.0",
+    "fastify-plugin": "^1.5.0",
+    "mysql": "^2.17.1",
+    "next": "^8.1.0",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "remove": "^0.1.5",
+    "styled-components": "^4.2.1"
+  },
+  "devDependencies": {
+    "tap": "^12.5.3"
+  }
+}
