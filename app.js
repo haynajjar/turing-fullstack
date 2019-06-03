@@ -4,6 +4,7 @@ const path = require('path')
 const AutoLoad = require('fastify-autoload')
 const fastifyNext = require('fastify-nextjs')
 const bookshelf = require('fastify-bookshelfjs');
+const models = require('./models')
 
 module.exports = function (fastify, opts, next) {
   
@@ -20,7 +21,9 @@ module.exports = function (fastify, opts, next) {
       }
     },
     console.error,
-  );
+  ).after(()=> {
+      fastify.models = models.load(fastify.bookshelf.Model)
+  })
 
 
   fastify
