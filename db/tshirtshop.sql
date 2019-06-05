@@ -461,7 +461,6 @@ BEGIN
                        ON pc.category_id = c.category_id
      WHERE           (p.display = 2 OR p.display = 3)
                      AND c.department_id = ?
-     ORDER BY        p.display DESC
      LIMIT           ?, ?";
 
   SET @p1 = inShortProductDescriptionLength;

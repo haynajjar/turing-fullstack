@@ -1,6 +1,6 @@
 
-// cb: callback function
-function CategorySchema(graphQL, graphQLBookshelf, {ProductType,Product}){
+
+function CategorySchema(graphQL, graphQLBookshelf, {ProductType,Category}){
 	return new graphQL.GraphQLObjectType({
 		name: "Category",
 		fields: {
@@ -13,10 +13,9 @@ function CategorySchema(graphQL, graphQLBookshelf, {ProductType,Product}){
 			description: {
 				type: graphQL.GraphQLString
 			},
-			// TODO - add department here
 			products: {
-				type: ProductType,
-				resolve: graphQLBookshelf.resolveFactory(Product)
+				type: new graphQL.GraphQLList(ProductType),
+				resolve: graphQLBookshelf.resolverFactory(Category)
 			}
 		}
 	})

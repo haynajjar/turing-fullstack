@@ -4,7 +4,7 @@ function Category(cb) {
 		tableName: 'category',
 		
 		products: function() {
-			return this.belongsToMany(cb().Product,'product_category','product_id','category_id','category_id','product_id')
+			return this.belongsToMany(cb().Product,'product_category','category_id','product_id','category_id','product_id')
 		}
 	}
 }

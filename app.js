@@ -22,7 +22,8 @@ module.exports = function (fastify, opts, next) {
     },
     console.error,
   ).after(()=> {
-      fastify.models = models.load(fastify.bookshelf.Model)
+      fastify.bookshelf.plugin('pagination')
+      fastify.models = models.load(fastify.bookshelf)
   })
 
 
