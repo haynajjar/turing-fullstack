@@ -4,11 +4,12 @@ import { persistReducer } from 'redux-persist'
 import storage from 'redux-persist/lib/storage'
 
 const exampleInitialState = {
-  lastUpdate: 0,
-  light: false,
-  count: 0,
-  exampleData: [],
-  error: null
+  error: null,
+  department_id: null,
+  category_id: null,
+  page_count: 6,
+  page_size: 10,
+  page: 1
 }
 
 export const actionTypes = {
@@ -18,86 +19,66 @@ export const actionTypes = {
   RESET: 'RESET',
   LOAD_EXAMPLE_DATA: 'LOAD_EXAMPLE_DATA',
   LOADING_DATA_FAILURE: 'LOADING_DATA_FAILURE',
-  SELECTED_DEP: 'SELECTED_DEP',
+  SELECT_DEPARTMENT: 'SELECT_DEPARTMENT',
+  SELECT_CATEGORY: 'SELECT_CATEGORY',
+  SET_PAGE: 'SET_PAGE',
+  SET_PAGE_SIZE: 'SET_PAGE_SIZE',
+  SET_PAGE_COUNT: 'SET_PAGE_COUNT'
 }
 
 // REDUCERS
 export const reducer = (state = exampleInitialState, action) => {
   switch (action.type) {
-    case actionTypes.TICK:
+    case actionTypes.SELECT_DEPARTMENT:
       return Object.assign({}, state, {
-        lastUpdate: action.ts,
-        light: !!action.light
-      }) 
-    case actionTypes.SELECTED_DEP:
-      return Object.assign({}, state, {
-        selectedDep: action.val
+        department_id: action.department_id
       })
-    case actionTypes.INCREMENT:
+    case actionTypes.SELECT_CATEGORY:
       return Object.assign({}, state, {
-        count: state.count + 1
+        category_id: action.category_id
       })
-    case actionTypes.DECREMENT:
+    case actionTypes.SET_PAGE:
       return Object.assign({}, state, {
-        count: state.count - 1
+        page: action.page
       })
-    case actionTypes.RESET:
+    case actionTypes.SET_PAGE_SIZE:
       return Object.assign({}, state, {
-        count: exampleInitialState.count
+        page_size: action.page_size
       })
-    case actionTypes.LOAD_EXAMPLE_DATA:
+    case actionTypes.SET_PAGE_COUNT:
       return Object.assign({}, state, {
-        exampleData: action.data
+        page_count: action.page_count
       })
-    case actionTypes.LOADING_DATA_FAILURE:
-      return Object.assign({}, state, {
-        error: true
-      })
+   
     default:
       return state
   }
 }
 
 // ACTIONS
-export const serverRenderClock = () => {
-  return { type: actionTypes.TICK, light: false, ts: Date.now() }
-}
-export const startClock = () => {
-  return { type: actionTypes.TICK, light: true, ts: Date.now() }
-}
-export const selectedDep = () => {
-  return { type: actionTypes.SELECTED_DEP, val: 'DEP 115' }
+
+export const selectDepartment = (department_id) =>{
+  return { type: actionTypes.SELECT_DEPARTMENT, department_id }
 }
 
-export const selectDepartment = (department) =>{
-  return { type: actionTypes.SELECTED_DEP, val: department }
-
+export const selectCategory = (category_id) =>{
+  return { type: actionTypes.SELECT_CATEGORY, category_id }
 }
 
-export const incrementCount = () => {
-  return { type: actionTypes.INCREMENT }
+export const setPageSize = (page_size) =>{
+  return { type: actionTypes.SET_PAGE_SIZE, page_size }
 }
-
-export const decrementCount = () => {
-  return { type: actionTypes.DECREMENT }
+export const setPageCount = (page_count) =>{
+  return { type: actionTypes.SET_PAGE_COUNT, page_count }
 }
-
-export const resetCount = () => {
-  return { type: actionTypes.RESET }
-}
-
-export const loadExampleData = data => {
-  return { type: actionTypes.LOAD_EXAMPLE_DATA, data }
-}
-
-export const loadingExampleDataFailure = () => {
-  return { type: actionTypes.LOADING_DATA_FAILURE }
+export const setPage = (page) =>{
+  return { type: actionTypes.SET_PAGE, page }
 }
 
 const persistConfig = {
   key: 'primary',
   storage,
-  whitelist: ['exampleData'] // place to select which state you want to persist
+  whitelist: [] // place to select which state you want to persist
 }
 
 const persistedReducer = persistReducer(persistConfig, reducer)

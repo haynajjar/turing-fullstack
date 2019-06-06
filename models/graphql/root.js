@@ -5,7 +5,23 @@ function RootSchema(graphQL,graphQLBookshelf, {ProductType,Product,CategoryType,
 	    fields: {
 	        products: {
 	            type: new graphQL.GraphQLList(ProductType),	            
-	            resolve: graphQLBookshelf.resolverFactory( Product )
+	            //resolve: graphQLBookshelf.resolverFactory( Product )
+	            args: {
+	            	page: {
+	            		name: 'page',
+	            		type: new graphQL.GraphQLNonNull(graphQL.GraphQLInt)
+	            	},
+	            	pageSize: {
+	            		name: 'pageSize',
+	            		type: new graphQL.GraphQLNonNull(graphQL.GraphQLInt)
+	            	}
+
+	            },
+	            resolve: function (modelInstance,args,context,info){
+				 	let {pageSize,page} = args
+				 	const resolverFn = graphQLBookshelf.resolverFactory(Product);
+                	return resolverFn(modelInstance, {}, context, info, null, {pageSize,page});
+				}
 	        },
 	        product: {
 	            type: ProductType,	            

@@ -6,6 +6,7 @@ const fastifyNext = require('fastify-nextjs')
 const bookshelf = require('fastify-bookshelfjs');
 const models = require('./models')
 
+
 module.exports = function (fastify, opts, next) {
   
   fastify.register(
@@ -33,6 +34,11 @@ module.exports = function (fastify, opts, next) {
     }
   )
 
+
+  fastify.register(require('fastify-static'), {
+    root: path.join(__dirname, 'frontend/static'),
+    prefix: '/static/', 
+  })
 
   // This loads all plugins defined in plugins
   // those should be support plugins that are reused

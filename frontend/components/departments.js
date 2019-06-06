@@ -6,7 +6,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { selectDepartment } from '../store'
+import { selectDepartment, selectCategory } from '../store'
+import { useQuery } from 'urql';
 
 const useStyles = makeStyles({
   root: {
@@ -14,23 +15,40 @@ const useStyles = makeStyles({
   },
 });
 
-const deps = ['Dep 1-1','Dep 2-1','Dep 3-1']
 
-function Departments({selectDepartment}) {
+const getDepartments = `
+  query GetDepartments {
+    departments {
+      department_id
+      name
+    }
+  }
+`;
 
+function Departments({department_id, selectDepartment, selectCategory}) {
+
+  
+  const [selectedIndex,setSelectedIndex] = React.useState(-1)
   const classes = useStyles();
+  const [res, executeQuery] = useQuery({
+    query: getDepartments
+  });
+  
+  if (!res.data) {
+    return null;
+  }
 
   return (
     <Paper className={classes.root}>
+
       <MenuList>
         {
-          deps.map((dep,i) => {
-            return (
-                <MenuItem key={i} onClick={() => {selectDepartment(dep)}}>
-                  <Typography variant="inherit" >{dep}</Typography>
+          res.data.departments.map(({ department_id, name },i) => (          
+                <MenuItem key={i} onClick={() => {selectDepartment(department_id);selectCategory(null);setSelectedIndex(i)}} selected={i === selectedIndex}>
+                  <Typography variant="inherit" >{name}</Typography>
                 </MenuItem>
               )
-          })
+          )
         }
       </MenuList>
     </Paper>
@@ -38,7 +56,7 @@ function Departments({selectDepartment}) {
 }
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ selectDepartment }, dispatch)
+  bindActionCreators({ selectDepartment, selectCategory }, dispatch)
 
 
 export default connect(null,mapDispatchToProps)(Departments)

@@ -1,6 +1,6 @@
 
 
-function CategorySchema(graphQL, graphQLBookshelf, {ProductType,Category}){
+function CategorySchema(graphQL, graphQLBookshelf, {ProductType,Category,Product}){
 	return new graphQL.GraphQLObjectType({
 		name: "Category",
 		fields: {
@@ -15,8 +15,39 @@ function CategorySchema(graphQL, graphQLBookshelf, {ProductType,Category}){
 			},
 			products: {
 				type: new graphQL.GraphQLList(ProductType),
-				resolve: graphQLBookshelf.resolverFactory(Category)
+				args: {
+	            	page: {
+	            		name: 'page',
+	            		type: new graphQL.GraphQLNonNull(graphQL.GraphQLInt)
+	            	},
+	            	pageSize: {
+	            		name: 'pageSize',
+	            		type: new graphQL.GraphQLNonNull(graphQL.GraphQLInt)
+	            	}
+
+	            },
+				//resolve: graphQLBookshelf.resolverFactory(Category)
+				resolve: function (modelInstance,args,context,info){
+
+					let category_id = modelInstance.category_id
+				 	
+				 	const extra = (model) => {
+				 		model.query((qb)=> {
+					 		qb.innerJoin('product_category','product.product_id','product_category.product_id')
+					 		qb.innerJoin('category','product_category.category_id','category.category_id')
+					 		qb.where('category.category_id',category_id)
+
+					 	})
+					 	
+				 	}
+
+				 	let {pageSize,page} = args
+				 	const resolverFn = graphQLBookshelf.resolverFactory(Product);
+
+                	return resolverFn(modelInstance, {}, context, info, extra, {pageSize,page});
+				}
 			}
+
 		}
 	})
 }

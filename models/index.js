@@ -23,11 +23,7 @@ const ProductSchema = require('./graphql/product'),
 
  
 function load(bookshelf){
-	//let Customer,Department,Category,ProductCategory,Product,Attribute,AttributeValue,ProductAttribute;
-	// console.log("knex ....................")
-	// console.log("knex ....................")
-	// console.log("knex ....................")
-	// console.log("knex ....................",bookshelf.knex)
+
 	let model = bookshelf.Model 
 	let knex = bookshelf.knex
 	// using callback as parameters so the constant will be all declared
@@ -76,7 +72,7 @@ function load(bookshelf){
 	const AttributeType = AttributeSchema(graphQL, graphQLBookshelf, {AttributeValueType,Attribute})
 
 	const ProductType = ProductSchema(graphQL, graphQLBookshelf, {AttributeValueType,Product,AttributeType,Attribute})
-	const CategoryType = CategorySchema(graphQL, graphQLBookshelf,  {ProductType,Category})
+	const CategoryType = CategorySchema(graphQL, graphQLBookshelf,  {ProductType,Category,Product})
 	const ProductCategoryType = ProductCategorySchema(graphQL, graphQLBookshelf,  {ProductType,ProductCategory})
 	const DepartmentType = DepartmentSchema(graphQL, graphQLBookshelf, {knex,CategoryType,ProductType,Department,ProductCategory,Product})
 
@@ -108,11 +104,17 @@ function load(bookshelf){
     */
 
 
-	const query = (queryString) => {
+	const query = (queryString,variables) => {
 		return new Promise((resolve,reject)=>{
-		 //console.log("query string ... ",queryString)
-	     graphQL.graphql( graphQLSchema, queryString, null, { loaders: graphQLBookshelf.getLoaders() }).then(function(result) {
-		     //console.log( JSON.stringify(result, null, 4) );
+
+		 let context = {loaders: graphQLBookshelf.getLoaders()}
+	     graphQL.graphql( graphQLSchema, queryString, null, context,variables).then(function(result,v) {
+
+		     if(result.data){
+		     	// getting pagination from context is propably not the best method, 
+		     	// but it is the easiest , otherwise we need to get deeper about how we handle resolvers internally
+		     	result.data.pagination = context.pagination
+		     }
 		     resolve(result)
 		 });
 			
