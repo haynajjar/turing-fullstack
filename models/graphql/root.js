@@ -1,83 +1,169 @@
 
-function RootSchema(graphQL,graphQLBookshelf, {ProductType,Product,CategoryType,Category,DepartmentType,Department,AttributeType,Attribute}){
-	return new graphQL.GraphQLObjectType({
-	    name: 'RootQuery',
-	    fields: {
-	        products: {
-	            type: new graphQL.GraphQLList(ProductType),	            
-	            //resolve: graphQLBookshelf.resolverFactory( Product )
-	            args: {
-	            	page: {
-	            		name: 'page',
-	            		type: new graphQL.GraphQLNonNull(graphQL.GraphQLInt)
-	            	},
-	            	pageSize: {
-	            		name: 'pageSize',
-	            		type: new graphQL.GraphQLNonNull(graphQL.GraphQLInt)
-	            	}
+function RootSchema(graphQL,graphQLBookshelf, {ProductType,Product,
+												CategoryType,Category,
+												DepartmentType,Department,
+												AttributeType,Attribute,
+												ShoppingCartType,ShoppingCart
+											}){
+	return {
 
-	            },
-	            resolve: function (modelInstance,args,context,info){
-				 	let {pageSize,page} = args
-				 	const resolverFn = graphQLBookshelf.resolverFactory(Product);
-                	return resolverFn(modelInstance, {}, context, info, null, {pageSize,page});
-				}
-	        },
-	        product: {
-	            type: ProductType,	            
-	            args: {
-	            	product_id: {
-	            		name: 'product_id',
-	            		type: new graphQL.GraphQLNonNull(graphQL.GraphQLInt)
-	            	}
-	            },
-	            resolve: graphQLBookshelf.resolverFactory( Product )
-	        },
-	        categories: {
-	            type: new graphQL.GraphQLList(CategoryType),	            
-	            resolve: graphQLBookshelf.resolverFactory( Category )
-	        },
-	        category: {
-	            type: CategoryType,	            
-	            args: {
-	            	category_id: {
-	            		name: 'category_id',
-	            		type: new graphQL.GraphQLNonNull(graphQL.GraphQLInt)
-	            	}
-	            },
-	            resolve: graphQLBookshelf.resolverFactory( Category )
-	        },
-	        departments: {
-	            type: new graphQL.GraphQLList(DepartmentType),	            
-	            resolve: graphQLBookshelf.resolverFactory( Department )
-	        },
-	        department: {
-	            type: DepartmentType,	            
-	            args: {
-	            	department_id: {
-	            		name: 'department_id',
-	            		type: new graphQL.GraphQLNonNull(graphQL.GraphQLInt)
-	            	}
-	            },
-	            resolve: graphQLBookshelf.resolverFactory( Department )
-	        }, 
-	        attributes: {
-	            type: new graphQL.GraphQLList(AttributeType),	            
-	            resolve: graphQLBookshelf.resolverFactory( Attribute )
-	        },
-	        attribute: {
-	            type: AttributeType,	            
-	            args: {
-	            	attribute_id: {
-	            		name: 'attribute_id',
-	            		type: new graphQL.GraphQLNonNull(graphQL.GraphQLInt)
-	            	}
-	            },
-	            resolve: graphQLBookshelf.resolverFactory( Attribute )
-	        }
+			RootQuery:	new graphQL.GraphQLObjectType({
+			    name: 'RootQuery',
+			    fields: {
+			        products: {
+			            type: new graphQL.GraphQLList(ProductType),	            
+			            args: {
+			            	page: {
+			            		name: 'page',
+			            		type: new graphQL.GraphQLNonNull(graphQL.GraphQLInt)
+			            	},
+			            	pageSize: {
+			            		name: 'pageSize',
+			            		type: new graphQL.GraphQLNonNull(graphQL.GraphQLInt)
+			            	}
 
-	    }
-	});
+			            },
+			            resolve: function (modelInstance,args,context,info){
+						 	let {pageSize,page} = args
+						 	const resolverFn = graphQLBookshelf.resolverFactory(Product);
+		                	return resolverFn(modelInstance, {}, context, info, null, {pageSize,page});
+						}
+			        },
+			        product: {
+			            type: ProductType,	            
+			            args: {
+			            	product_id: {
+			            		name: 'product_id',
+			            		type: new graphQL.GraphQLNonNull(graphQL.GraphQLInt)
+			            	}
+			            },
+			            resolve: graphQLBookshelf.resolverFactory( Product )
+			        },
+			        categories: {
+			            type: new graphQL.GraphQLList(CategoryType),	            
+			            resolve: graphQLBookshelf.resolverFactory( Category )
+			        },
+			        category: {
+			            type: CategoryType,	            
+			            args: {
+			            	category_id: {
+			            		name: 'category_id',
+			            		type: new graphQL.GraphQLNonNull(graphQL.GraphQLInt)
+			            	}
+			            },
+			            resolve: graphQLBookshelf.resolverFactory( Category )
+			        },
+			        departments: {
+			            type: new graphQL.GraphQLList(DepartmentType),	            
+			            resolve: graphQLBookshelf.resolverFactory( Department )
+			        },
+			        department: {
+			            type: DepartmentType,	            
+			            args: {
+			            	department_id: {
+			            		name: 'department_id',
+			            		type: new graphQL.GraphQLNonNull(graphQL.GraphQLInt)
+			            	}
+			            },
+			            resolve: graphQLBookshelf.resolverFactory( Department )
+			        }, 
+			        attributes: {
+			            type: new graphQL.GraphQLList(AttributeType),	            
+			            resolve: graphQLBookshelf.resolverFactory( Attribute )
+			        },
+			        attribute: {
+			            type: AttributeType,	            
+			            args: {
+			            	attribute_id: {
+			            		name: 'attribute_id',
+			            		type: new graphQL.GraphQLNonNull(graphQL.GraphQLInt)
+			            	}
+			            },
+			            resolve: graphQLBookshelf.resolverFactory( Attribute )
+			        },
+			        shopping_cart: {
+			            type:  new graphQL.GraphQLList(ShoppingCartType),	            
+			            args: {
+			            	cart_id: {
+			            		name: 'cart_id',
+			            		type: new graphQL.GraphQLNonNull(graphQL.GraphQLString)
+			            	}
+			            },
+			            resolve: graphQLBookshelf.resolverFactory( ShoppingCart )
+
+			   //          resolve: function (modelInstance,args,context,info){
+						// 	 	//let item_id = modelInstance.item_id
+						// 	 	console.log('args ... ',args)
+							 	
+						// 	 	const extra = (model) => {
+						// 	 		// model.query((qb)=> {
+						// 		 	// 	qb.innerJoin('product','product.product_id','shopping_cart.product_id')
+						// 		 	// 	qb.where('shopping_cart.cart_id',args.cart_id)
+						// 		 	// })
+						// 		 	model.fetch({withRelated: ['product']})
+						// 	 	}
+
+						// 	 	const resolverFn = graphQLBookshelf.resolverFactory(ShoppingCart);
+			   //              	return resolverFn(modelInstance, args, context, info, extra);
+						// }
+			            
+			        }
+
+	    		}
+			}),
+
+
+
+
+		RootMutation: new graphQL.GraphQLObjectType({
+			    name: 'RootMutation',
+			    fields: {
+			    	add_to_cart: {
+						type: ShoppingCartType,
+						description: 'Add cart item',
+						args: {
+			            	cart_id: {
+			            		name: 'cart_id',
+			            		type: new graphQL.GraphQLNonNull(graphQL.GraphQLString)
+			            	},
+			            	product_id: {
+			            		name: 'product_id',
+			            		type: new graphQL.GraphQLNonNull(graphQL.GraphQLInt)
+			            	},
+			            	quantity: {
+			            		name: 'quantity',
+			            		type: new graphQL.GraphQLNonNull(graphQL.GraphQLInt)
+			            	},
+			            	attributes: {
+			            		name: 'attributes',
+			            		type: new graphQL.GraphQLNonNull(graphQL.GraphQLString)
+			            	}
+
+			            },
+						resolve: async function(modelInstance, args, context, info){
+							const {cart_id,product_id,quantity,attributes} = args
+							const added_on = new Date()
+							// check if product_id, cart_id and attributes exist and update quantity or add new item
+							let cart = await ShoppingCart.where({cart_id,product_id,attributes}).fetch()
+
+							if(cart){
+								const {quantity} = cart.serialize({ shallow: true })
+								cart = await cart.save({quantity: quantity+1}) 
+							}else{
+								cart = await ShoppingCart.forge({cart_id,product_id,quantity,attributes,added_on}).save()
+							}
+
+							return Object.assign(cart, cart.serialize({ shallow: true }))
+						}
+					}
+			    }
+			})
+
+	}
+
 }
+
+
+
 
 module.exports = RootSchema

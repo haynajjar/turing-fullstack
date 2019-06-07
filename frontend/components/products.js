@@ -66,7 +66,7 @@ const getAllProducts = `
   }
 `;
 
-function Products({department_id,category_id, page_size, page  ,setPageCount}) {
+function Products({department_id,category_id, page_size, page ,setPageCount}) {
 
   const classes = useStyles();
   

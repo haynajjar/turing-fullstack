@@ -20,7 +20,7 @@ function Pagination({page_count,page,page_size,setPageSize,setPage}) {
 
     <Paper >
       <Grid container>
-        <Grid item xs={11}>
+        <Grid item xs={10} md={11}>
         {[...Array(page_count)].map((e,i) => (
             <Button key={i} color={page == i+1 ? 'secondary' : 'primary'} size="large" onClick={() => {setPage(i+1)}}>
               {i+1}
@@ -29,13 +29,13 @@ function Pagination({page_count,page,page_size,setPageSize,setPage}) {
          )
         }
         </Grid>
-        <Grid item xs={1}>
+        <Grid item xs={2} md={1}>
 
           <InputLabel htmlFor="page-size" shrink>Per page</InputLabel>
           <Select
               
               value={page_size}
-              onChange={(evt) => {setPageSize(evt.target.value)}}
+              onChange={(evt) => {setPageSize(evt.target.value);setPage(1)}}
               inputProps={{
                 name: 'page_size',
                 id: 'page-size',

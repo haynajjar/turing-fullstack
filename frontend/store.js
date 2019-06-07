@@ -3,13 +3,27 @@ import { composeWithDevTools } from 'redux-devtools-extension'
 import { persistReducer } from 'redux-persist'
 import storage from 'redux-persist/lib/storage'
 
+// generate 32 char for cart_id
+function generateCardId(){
+    var dt = new Date().getTime();
+    var uuid = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'.replace(/[x]/g, function(c) {
+        var r = (dt + Math.random()*16)%16 | 0;
+        dt = Math.floor(dt/16);
+        return (c=='x' ? r :(r&0x3|0x8)).toString(16);
+    });
+    return uuid;
+}
+
 const exampleInitialState = {
   error: null,
   department_id: null,
   category_id: null,
   page_count: 6,
   page_size: 10,
-  page: 1
+  page: 1,
+  cart_id: generateCardId(),
+  cart_update: null,
+  cart_attributes: "Empty"
 }
 
 export const actionTypes = {
@@ -23,7 +37,9 @@ export const actionTypes = {
   SELECT_CATEGORY: 'SELECT_CATEGORY',
   SET_PAGE: 'SET_PAGE',
   SET_PAGE_SIZE: 'SET_PAGE_SIZE',
-  SET_PAGE_COUNT: 'SET_PAGE_COUNT'
+  SET_PAGE_COUNT: 'SET_PAGE_COUNT',
+  UPDATE_CART: 'UPDATE_CART',
+  UPDATE_CART_ATTRIBUTES: 'UPDATE_CART_ATTRIBUTES'
 }
 
 // REDUCERS
@@ -48,6 +64,14 @@ export const reducer = (state = exampleInitialState, action) => {
     case actionTypes.SET_PAGE_COUNT:
       return Object.assign({}, state, {
         page_count: action.page_count
+      })
+    case actionTypes.UPDATE_CART:
+      return Object.assign({}, state, {
+        cart_update: action.cart_update
+      })
+   case actionTypes.UPDATE_CART_ATTRIBUTES:
+      return Object.assign({}, state, {
+        cart_attributes: action.cart_attributes
       })
    
     default:
@@ -75,10 +99,22 @@ export const setPage = (page) =>{
   return { type: actionTypes.SET_PAGE, page }
 }
 
+export const updateShoppingCart = (time) => {
+  return { type: actionTypes.UPDATE_CART, cart_update: time}
+}
+
+export const updateCartAttributes = (attrs) => {
+  // this is a particular case for the store 
+  // setup cart attributes as a global choice for the user
+  // it may not work well for the user if the website presents different kind of products and options
+  const attrStr = Object.keys(attrs).map((k,i) => k+": "+Object.values(attrs)[i]).join(', ')
+  return { type: actionTypes.UPDATE_CART_ATTRIBUTES, cart_attributes: attrStr}
+}
+
 const persistConfig = {
   key: 'primary',
   storage,
-  whitelist: [] // place to select which state you want to persist
+  whitelist: ['cart_id'] // persist shopping cart id 
 }
 
 const persistedReducer = persistReducer(persistConfig, reducer)

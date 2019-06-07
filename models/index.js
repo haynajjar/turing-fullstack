@@ -9,6 +9,7 @@ const AttributeValueRecord = require('./records/attribute_value')
 const ProductAttributeRecord = require('./records/product_attribute')
 const ProductRecord = require('./records/product')
 const ProductCategoryRecord = require('./records/product_category')
+const ShoppingCartRecord = require('./records/shopping_cart')
 
 const graphQL = require('graphql')
 const graphQLBookshelf = require('p-graphql-bookshelfjs')
@@ -19,6 +20,7 @@ const ProductSchema = require('./graphql/product'),
 	 ProductCategorySchema = require('./graphql/product_category'),
 	 AttributeSchema = require('./graphql/attribute'),
 	 AttributeValueSchema = require('./graphql/attribute_value'),
+	 ShoppingCartSchema = require('./graphql/shopping_cart'),
 	 RootSchema = require('./graphql/root')
 
  
@@ -37,7 +39,10 @@ function load(bookshelf){
 
 	const ProductCategory = model.extend(ProductCategoryRecord(()=>{return {Product}}))
 	const Category = model.extend(CategoryRecord(()=> {return {Product}}))
-	const Product = model.extend(ProductRecord(()=> {return {Category,ProductAttribute,AttributeValue}}))
+	const Product = model.extend(ProductRecord(()=> {return {Category,ProductAttribute,AttributeValue,ShoppingCart}}))
+
+
+	const ShoppingCart = model.extend(ShoppingCartRecord(()=> {return {Product}}))
 
 
 	// ADD them to test cases
@@ -65,6 +70,11 @@ function load(bookshelf){
 	//  	console.log("First department products ...", JSON.stringify(dep.related('attribute_values'),null,2))
 	//  })	
 
+	// ShoppingCart.where({item_id: 16}).fetch({withRelated: ['product']}).then(dep => {
+	// 	//console.log('JSON... ',dep.toJSON())
+	//  	console.log("First department products ...", JSON.stringify(dep.related('product'),null,2))
+	//  })	
+
 	//console.log("Model instance ... ", Department.where({department_id: 1}))
 	// initialize graphql for the models
 	// TODO -- add product attributes types
@@ -75,16 +85,20 @@ function load(bookshelf){
 	const CategoryType = CategorySchema(graphQL, graphQLBookshelf,  {ProductType,Category,Product})
 	const ProductCategoryType = ProductCategorySchema(graphQL, graphQLBookshelf,  {ProductType,ProductCategory})
 	const DepartmentType = DepartmentSchema(graphQL, graphQLBookshelf, {knex,CategoryType,ProductType,Department,ProductCategory,Product})
+	const ShoppingCartType = ShoppingCartSchema(graphQL, graphQLBookshelf, {ProductType,Product,ShoppingCart})
 
-	const RootQuery = RootSchema(graphQL,graphQLBookshelf, {
+	const {RootQuery, RootMutation} = RootSchema(graphQL,graphQLBookshelf, {
 		ProductType,Product,
 		CategoryType,Category,
 		DepartmentType,Department,
-		AttributeType,Attribute
+		AttributeType,Attribute,
+		ShoppingCartType,ShoppingCart
 	})
 
 
-	const graphQLSchema = new graphQL.GraphQLSchema({query: RootQuery});
+
+
+	const graphQLSchema = new graphQL.GraphQLSchema({query: RootQuery, mutation: RootMutation});
 
 	/*
 		-- Query String example --
@@ -108,8 +122,9 @@ function load(bookshelf){
 		return new Promise((resolve,reject)=>{
 
 		 let context = {loaders: graphQLBookshelf.getLoaders()}
+		 //console.log(context.loaders)
 	     graphQL.graphql( graphQLSchema, queryString, null, context,variables).then(function(result,v) {
-
+	     	 //console.log(result)
 		     if(result.data){
 		     	// getting pagination from context is propably not the best method, 
 		     	// but it is the easiest , otherwise we need to get deeper about how we handle resolvers internally

@@ -46,7 +46,7 @@ class Shop extends React.Component {
         <Grid container spacing={3}>
           <Grid item xs={12}>
           </Grid>
-          <Grid item xs={3}>
+          <Grid item md={3}>
             <Departments />
             {this.props.department_id &&
               <Categories />

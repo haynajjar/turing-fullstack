@@ -8,6 +8,9 @@ function Product(cb) {
 		},
 		attribute_values: function() {
 			return this.belongsToMany(cb().AttributeValue,'product_attribute','product_id','attribute_value_id','product_id','attribute_value_id')
+		},
+		shopping_carts: function(){
+			return this.hasMany(cb().ShoppingCart,'product_id','product_id')
 		}
 
 	}
