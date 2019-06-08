@@ -6,21 +6,10 @@ import Box from '@material-ui/core/Box';
 import Departments from '../components/departments'
 import Categories from '../components/categories'
 import Products from '../components/products'
+import ShopAppBar from '../components/shop-app-bar'
 import ProductDetails from '../components/product-details'
 import { withRouter } from 'next/router'
-
 import { connect } from 'react-redux'
-
-const useStyles = makeStyles(theme => ({
-  root: {
-    flexGrow: 1,
-  },
-  paper: {
-    padding: theme.spacing(2),
-    textAlign: 'center',
-    color: theme.palette.text.secondary,
-  },
-}));
 
 class Product extends React.Component {
 
@@ -30,9 +19,18 @@ class Product extends React.Component {
       return 'No product id provided'
     }
     return (
-      <div >
-          <ProductDetails product_id={parseInt(this.props.router.query.id)} />
-      </div>
+      <React.Fragment>
+        <ShopAppBar />
+        <Grid container>
+          <Grid item md={1}>
+          </Grid>
+          <Grid item md={10} >
+            <Box m={5}>
+              <ProductDetails  product_id={parseInt(this.props.router.query.id)} />
+            </Box>
+          </Grid>
+        </Grid>
+      </React.Fragment>
     );
   }
 

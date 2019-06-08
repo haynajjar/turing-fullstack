@@ -34,6 +34,11 @@ module.exports = function (fastify, opts, next) {
     }
   )
 
+  fastify.register(require('fastify-jwt'), {
+    secret: 'xs8zSStxdgldfD0kjbsga0z7eosdrdfkdFDGD'
+  })
+
+  fastify.register(require('fastify-auth'))
 
   fastify.register(require('fastify-static'), {
     root: path.join(__dirname, 'frontend/static'),

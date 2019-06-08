@@ -30,7 +30,7 @@ function load(bookshelf){
 	let knex = bookshelf.knex
 	// using callback as parameters so the constant will be all declared
 	// it won't show ReferenceError message
-	const Customer = model.extend(CustomerRecord())	
+	const Customer = model.extend(CustomerRecord().Record,CustomerRecord().Methods)	
 	const Department = model.extend(DepartmentRecord(()=>{return {Category,Product,ProductCategory}}))
 
 	const Attribute = model.extend(AttributeRecord(()=> {return {AttributeValue}}))

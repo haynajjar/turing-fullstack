@@ -7,20 +7,9 @@ import Departments from '../components/departments'
 import Categories from '../components/categories'
 import Products from '../components/products'
 import Pagination from '../components/pagination'
-
+import ShopAppBar from '../components/shop-app-bar'
 
 import { connect } from 'react-redux'
-
-const useStyles = makeStyles(theme => ({
-  root: {
-    flexGrow: 1,
-  },
-  paper: {
-    padding: theme.spacing(2),
-    textAlign: 'center',
-    color: theme.palette.text.secondary,
-  },
-}));
 
 class Shop extends React.Component {
 
@@ -42,19 +31,19 @@ class Shop extends React.Component {
 
   render(){
     return (
-      <div >
-        <Grid container spacing={3}>
+      <React.Fragment >
+        <ShopAppBar />
+        <Grid container>
           <Grid item xs={12}>
           </Grid>
           <Grid item md={3}>
             <Departments />
-            {this.props.department_id &&
-              <Categories />
-            }
+            <Categories />
+            
           </Grid>
             
             
-          <Grid item xs={9} >
+          <Grid item md={9} >
             <Pagination />
             <Box m={2} >
               <Products />
@@ -63,7 +52,7 @@ class Shop extends React.Component {
           </Grid>
 
         </Grid>
-      </div>
+      </React.Fragment>
     );
   }
 }

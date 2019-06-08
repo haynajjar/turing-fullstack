@@ -1,13 +1,14 @@
 'use strict'
 
 module.exports = function (fastify, opts, next) {
-  fastify.get('/', function (req, reply) {
-    reply.send({ root: true })
+ 
+
+  fastify.next('/',(app, req,reply) => {
+  	app.render(req.raw, reply.res, '/shop', req.params, {})
   })
-
-
-
   fastify.next('/shop')
+  fastify.next('/login')
+  fastify.next('/sign_up')
   fastify.next('/product')
   fastify.next('/product/:id', (app, req,reply) => {
   	app.render(req.raw, reply.res, '/product', req.params, {})

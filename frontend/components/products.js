@@ -7,12 +7,14 @@ import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
+import Link from 'next/link'
 import Typography from '@material-ui/core/Typography';
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { selectCategory, setPageCount } from '../store'
 import { useQuery } from 'urql';
-
+import {priceFormat} from '../lib/util'
+import AddToCartBtn from '../components/add-to-cart-btn'
 
 
 const useStyles = makeStyles( theme => {return {
@@ -28,6 +30,12 @@ const useStyles = makeStyles( theme => {return {
   control: {
     padding: theme.spacing(2),
   },
+  barred: {
+    'text-decoration': 'line-through'
+  },
+  span: {
+    'font-weight': 'bold'
+  }
 }});
 
 
@@ -37,6 +45,8 @@ const productQuery = `
         name
         description
         thumbnail
+        price
+        discounted_price
       }
 `
 
@@ -97,31 +107,31 @@ function Products({department_id,category_id, page_size, page ,setPageCount}) {
                           Loading ...
                         </Typography>
               }
-            {!res.fetching && data && data.products.map(({product_id,name,description,thumbnail}) => (
+            {!res.fetching && data && data.products.map(({product_id,name,description,thumbnail,price,discounted_price}) => (
               <Grid key={product_id} item md={3} sm={6} xs={12}>
                   <Card  className={classes.card}>
-                    <CardActionArea>
-                      <CardMedia
-                        className={classes.media}
-                        image={"/static/product_images/"+thumbnail}
-                        title={name}
-                      />
-                      <CardContent>
-                        <Typography gutterBottom variant="h5" component="h3" noWrap>
-                          {name}
-                        </Typography>
-                        <Typography variant="body2" color="textSecondary" component="p" noWrap>
-                          {description}
-                        </Typography>
-                      </CardContent>
-                    </CardActionArea>
+                    <Link prefetch href={"/product/"+product_id} >
+                      <CardActionArea>
+                        <CardMedia
+                          className={classes.media}
+                          image={"/static/product_images/"+thumbnail}
+                          title={name}
+                        />
+                        <CardContent>
+                          <Typography gutterBottom variant="h5" component="h3" noWrap>
+                            {name}
+                          </Typography>
+                          <Typography variant="body2" color="primary" component="h6" noWrap>
+                            <span className={discounted_price ? classes.barred : classes.span}> {priceFormat(price)}</span> <span className={classes.span}>{priceFormat(discounted_price)}</span>
+                          </Typography>
+                          <Typography variant="body2" color="textSecondary" component="p" noWrap>
+                            {description}
+                          </Typography>
+                        </CardContent>
+                      </CardActionArea>
+                    </Link>
                     <CardActions>
-                      <Button size="small" color="primary">
-                        Share
-                      </Button>
-                      <Button size="small" color="primary">
-                        Learn More
-                      </Button>
+                      <AddToCartBtn fullWidth product_id={product_id} />
                     </CardActions>
                   </Card>
                 </Grid>

@@ -4,7 +4,6 @@ import flush from 'styled-jsx/server';
 import { ServerStyleSheet } from 'styled-components'
 import { ServerStyleSheets } from '@material-ui/styles';
 
-
 class AppDoc extends Document {
   static async getInitialProps (ctx) {
     const sheet = new ServerStyleSheet()

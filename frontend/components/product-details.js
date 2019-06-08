@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import ButtonBase from '@material-ui/core/ButtonBase';
 import Button from '@material-ui/core/Button';
@@ -6,10 +6,10 @@ import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { updateShoppingCart, updateCartAttributes } from '../store'
-import { useQuery, useMutation } from 'urql';
-
-import ShoppingCart from './shopping-cart'
+import { updateCartAttributes } from '../store'
+import { useQuery } from 'urql';
+import AddToCartBtn from './add-to-cart-btn'
+import {priceFormat} from '../lib/util'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -28,6 +28,12 @@ const useStyles = makeStyles(theme => ({
     maxWidth: '100%',
     maxHeight: '100%',
   },
+  barred: {
+    'text-decoration': 'line-through'
+  },
+  span: {
+    'font-weight': 'bold'
+  }
 }));
 
 
@@ -53,19 +59,7 @@ const getProduct = `
  }
 `
 
-const addToCartMutation = `
-  mutation AddToCart ($product_id: Int!,$cart_id: String!,$attributes: String!){
-    add_to_cart(product_id: $product_id,cart_id: $cart_id,attributes: $attributes,quantity: 1){
-      item_id,
-      quantity,
-      cart_id,
-      added_on
-      product_id
-    }
-  }
-`
-
-function ProductDetails({department_id, product_id, cart_id, cart_attributes, updateShoppingCart, updateCartAttributes}) {
+function ProductDetails({product_id, cart_id,cart_update, cart_attributes, updateCartAttributes}) {
 
   const classes = useStyles()  ;
 
@@ -88,22 +82,6 @@ function ProductDetails({department_id, product_id, cart_id, cart_attributes, up
     return selectedAttributeValues[attribute] === attribute_value ? 'secondary' : 'primary'
   }
 
-  // ---- --------
-  // MUTATION ----
-  // use mutation for add to cart
-  const [addCartRes, executeMutation] = useMutation(addToCartMutation);
-  function addToCart(){
-    // to prevent multi requests trigger we need to set a state 
-    // console.log('add to cart res ... ', addCartRes)
-    if(!addCartRes.fetching){
-      executeMutation({product_id: product_id,cart_id: cart_id,attributes: cart_attributes}).then(res => {
-        // update global cart state with new time (cart_update)
-        const updateTime = (+new Date()).toString()
-        updateShoppingCart(updateTime)
-      })
-    }
-  }
-  // ---- ----
 
   if (!res.data) {
     return null;
@@ -113,9 +91,7 @@ function ProductDetails({department_id, product_id, cart_id, cart_attributes, up
 
   return (
     <div className={classes.root}>
-      <Grid container className={classes.root} spacing={2}>
-
-            <ShoppingCart />
+      <Grid container className={classes.root}>
 
             {res.fetching && <Typography gutterBottom variant="h5" component="h4" noWrap>
                           Loading ...
@@ -138,18 +114,15 @@ function ProductDetails({department_id, product_id, cart_id, cart_attributes, up
             <Grid item xs={12} sm container>
               <Grid item xs container direction="column" spacing={2}>
                 <Grid item xs>
-                  <Typography gutterBottom variant="subtitle1">
+                  <Typography gutterBottom variant="h6">
                     {product.name}
                   </Typography>
                   <Typography variant="body2" gutterBottom>
                     {product.description}
                   </Typography>
-                  <Typography variant="body2" color="textSecondary">
-                    ID: {cart_id}
-                  </Typography>
                   {product.attributes.map( ({attribute_id,name,attribute_values},i) => (
                       <div key={i}>
-                        <Typography gutterBottom variant="subtitle1">
+                        <Typography gutterBottom variant="subtitle1" >
                           {name}
                         </Typography>
                         {attribute_values.map( ({attribute_value_id, value}) => (
@@ -163,14 +136,14 @@ function ProductDetails({department_id, product_id, cart_id, cart_attributes, up
                   )}
                 </Grid>
                 <Grid item>
-                  <Button color="secondary" variant="contained" onClick={addToCart}>
-                    Add to card 
-                  </Button>
-                  
+                 
+                  <AddToCartBtn product_id={product_id} />
                 </Grid>
               </Grid>
               <Grid item>
-                <Typography variant="subtitle1">{product.price}</Typography>
+                <Typography variant="h6"  noWrap>
+                  <span className={product.discounted_price ? classes.barred : classes.span}> {priceFormat(product.price)}</span> <span className={classes.span}>{priceFormat(product.discounted_price)}</span>
+                </Typography>
               </Grid>
             </Grid>
           
@@ -180,11 +153,11 @@ function ProductDetails({department_id, product_id, cart_id, cart_attributes, up
 }
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ updateShoppingCart, updateCartAttributes }, dispatch)
+  bindActionCreators({ updateCartAttributes }, dispatch)
 
 const mapStateToProps = state => {
-  const { department_id, cart_id, cart_attributes } = state
-  return { department_id, cart_id, cart_attributes }
+  const { cart_id, cart_attributes, cart_update } = state
+  return { cart_id, cart_attributes, cart_update }
 }
 
 export default connect(mapStateToProps,mapDispatchToProps)(ProductDetails)

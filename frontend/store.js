@@ -9,7 +9,7 @@ function generateCardId(){
     var uuid = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'.replace(/[x]/g, function(c) {
         var r = (dt + Math.random()*16)%16 | 0;
         dt = Math.floor(dt/16);
-        return (c=='x' ? r :(r&0x3|0x8)).toString(16);
+        return r.toString(16);
     });
     return uuid;
 }
@@ -23,7 +23,8 @@ const exampleInitialState = {
   page: 1,
   cart_id: generateCardId(),
   cart_update: null,
-  cart_attributes: "Empty"
+  cart_attributes: "Size: S, Color: White",
+  customer: null
 }
 
 export const actionTypes = {
@@ -39,7 +40,8 @@ export const actionTypes = {
   SET_PAGE_SIZE: 'SET_PAGE_SIZE',
   SET_PAGE_COUNT: 'SET_PAGE_COUNT',
   UPDATE_CART: 'UPDATE_CART',
-  UPDATE_CART_ATTRIBUTES: 'UPDATE_CART_ATTRIBUTES'
+  UPDATE_CART_ATTRIBUTES: 'UPDATE_CART_ATTRIBUTES',
+  SAVE_USER: 'SAVE_USER'
 }
 
 // REDUCERS
@@ -69,9 +71,13 @@ export const reducer = (state = exampleInitialState, action) => {
       return Object.assign({}, state, {
         cart_update: action.cart_update
       })
-   case actionTypes.UPDATE_CART_ATTRIBUTES:
+    case actionTypes.UPDATE_CART_ATTRIBUTES:
       return Object.assign({}, state, {
         cart_attributes: action.cart_attributes
+      })
+    case actionTypes.SAVE_USER:
+      return Object.assign({}, state, {
+        customer: action.customer
       })
    
     default:
@@ -99,22 +105,28 @@ export const setPage = (page) =>{
   return { type: actionTypes.SET_PAGE, page }
 }
 
-export const updateShoppingCart = (time) => {
+export const setUpShoppingCart = (time) => {
   return { type: actionTypes.UPDATE_CART, cart_update: time}
 }
 
 export const updateCartAttributes = (attrs) => {
-  // this is a particular case for the store 
+  // this is a particular case for the shop 
   // setup cart attributes as a global choice for the user
   // it may not work well for the user if the website presents different kind of products and options
   const attrStr = Object.keys(attrs).map((k,i) => k+": "+Object.values(attrs)[i]).join(', ')
   return { type: actionTypes.UPDATE_CART_ATTRIBUTES, cart_attributes: attrStr}
 }
 
+export const saveUser = (customer) => {
+  console.log("save user ... ", customer)
+  return { type: actionTypes.SAVE_USER, customer: customer}
+}
+
 const persistConfig = {
   key: 'primary',
   storage,
-  whitelist: ['cart_id'] // persist shopping cart id 
+  // we need to persist the following states, 
+  whitelist: ['cart_id','cart_update','cart_attributes','customer','department_id','category_id','page','page_size'] 
 }
 
 const persistedReducer = persistReducer(persistConfig, reducer)

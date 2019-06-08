@@ -91,22 +91,6 @@ function RootSchema(graphQL,graphQLBookshelf, {ProductType,Product,
 			            },
 			            resolve: graphQLBookshelf.resolverFactory( ShoppingCart )
 
-			   //          resolve: function (modelInstance,args,context,info){
-						// 	 	//let item_id = modelInstance.item_id
-						// 	 	console.log('args ... ',args)
-							 	
-						// 	 	const extra = (model) => {
-						// 	 		// model.query((qb)=> {
-						// 		 	// 	qb.innerJoin('product','product.product_id','shopping_cart.product_id')
-						// 		 	// 	qb.where('shopping_cart.cart_id',args.cart_id)
-						// 		 	// })
-						// 		 	model.fetch({withRelated: ['product']})
-						// 	 	}
-
-						// 	 	const resolverFn = graphQLBookshelf.resolverFactory(ShoppingCart);
-			   //              	return resolverFn(modelInstance, args, context, info, extra);
-						// }
-			            
 			        }
 
 	    		}
@@ -155,7 +139,26 @@ function RootSchema(graphQL,graphQLBookshelf, {ProductType,Product,
 
 							return Object.assign(cart, cart.serialize({ shallow: true }))
 						}
+					},
+
+					remove_from_cart: {
+						type: graphQL.GraphQLBoolean,
+						args: {
+							item_id: {
+								name: 'item_id',
+								type: new graphQL.GraphQLNonNull(graphQL.GraphQLInt)
+							}
+						},
+						resolve: async function(modelInstance, args, context, info){
+							try{
+								await ShoppingCart.forge({item_id: args.item_id}).destroy()
+								return true
+							}catch(e){
+								return e
+							}
+						}
 					}
+
 			    }
 			})
 

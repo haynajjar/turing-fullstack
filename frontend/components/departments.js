@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import MenuList from '@material-ui/core/MenuList';
 import MenuItem from '@material-ui/core/MenuItem';
 import Paper from '@material-ui/core/Paper';
@@ -29,18 +29,21 @@ const getDepartments = `
 function Departments({department_id, selectDepartment, selectCategory, setPage}) {
 
 
-  const [selectedIndex,setSelectedIndex] = React.useState(-1)
+  const [selectedDepartment,setSelectedDepartment] = useState(-1)
   const classes = useStyles();
   const [res, executeQuery] = useQuery({
     query: getDepartments
   });
 
-  function setupDepartment(department_id,i){
+  function setupDepartment(department_id){
     selectCategory(null);
     setPage(1)
     selectDepartment(department_id);
-    setSelectedIndex(i)
   }
+
+  useEffect( () => {
+    setSelectedDepartment(department_id)
+  },[department_id])
   
   if (!res.data) {
     return null;
@@ -56,8 +59,8 @@ function Departments({department_id, selectDepartment, selectCategory, setPage})
       <Paper className={classes.root}>
         <MenuList>
           {
-            res.data.departments.map(({ department_id, name },i) => (          
-                  <MenuItem key={i} onClick={() => {setupDepartment(department_id,i)}} selected={i === selectedIndex}>
+            res.data.departments.map(({ department_id, name }) => (          
+                  <MenuItem key={department_id} onClick={() => {setupDepartment(department_id)}} selected={department_id === selectedDepartment}>
                     <Typography variant="inherit" >{name}</Typography>
                   </MenuItem>
                 )
@@ -72,5 +75,9 @@ function Departments({department_id, selectDepartment, selectCategory, setPage})
 const mapDispatchToProps = dispatch =>
   bindActionCreators({ selectDepartment, selectCategory ,setPage }, dispatch)
 
+const mapStateToProps = state => {
+  const { department_id } = state
+  return { department_id }
+}
 
-export default connect(null,mapDispatchToProps)(Departments)
+export default connect(mapStateToProps,mapDispatchToProps)(Departments)

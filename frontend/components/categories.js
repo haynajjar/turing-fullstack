@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState,useEffect} from 'react';
 import MenuList from '@material-ui/core/MenuList';
 import MenuItem from '@material-ui/core/MenuItem';
 import Box from '@material-ui/core/Box';
@@ -32,7 +32,7 @@ const getDepartment = `
 
 function Categories({department_id,category_id,selectCategory, setPage}) {
 
-  const selectedCategory = category_id
+  const [selectedCategory,setSelectedCategory] = useState(category_id)
   const classes = useStyles();
   
   const [res, executeQuery] = useQuery({
@@ -44,6 +44,10 @@ function Categories({department_id,category_id,selectCategory, setPage}) {
     setPage(1)
     selectCategory(category_id)
   }
+
+  useEffect(() => {
+    setSelectedCategory(category_id)
+  },[category_id])
   
   if (!res.data) {
     return null;
@@ -55,7 +59,7 @@ function Categories({department_id,category_id,selectCategory, setPage}) {
  
         <MenuList>
           {
-            res.data.department.categories.map(({ category_id, name },i) => (          
+            res.data.department.categories.map(({ category_id, name }) => (          
                   <MenuItem key={category_id} onClick={() => {setupCategory(category_id)}} selected={selectedCategory === category_id}>
                     <Typography variant="inherit" >{name}</Typography>
                   </MenuItem>
