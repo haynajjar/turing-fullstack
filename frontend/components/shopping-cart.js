@@ -25,6 +25,7 @@ import { bindActionCreators } from 'redux'
 import { setUpShoppingCart } from '../store'
 import { useQuery, useMutation } from 'urql';
 import {priceFormat} from '../lib/util'
+import Link from 'next/link';
 
 // query to get shopping cart items
 const getCartItems = `
@@ -206,10 +207,12 @@ function ShoppingCart({cart_update, cart_id, setUpShoppingCart}) {
                   </ListItemSecondaryAction>
                 </ListItem>
                 <ListItem>
-                  <Button fullWidth variant="contained" color="secondary">
-                    <ShoppingCartIcon />
-                    Checkout
-                  </Button>
+                  <Link href="/checkout" prefetch>
+                    <Button fullWidth variant="contained" color="secondary">
+                      <ShoppingCartIcon />
+                      Checkout
+                    </Button>
+                  </Link>
                   
                 </ListItem>
                 <Divider  component="li" />

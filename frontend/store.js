@@ -24,7 +24,9 @@ const exampleInitialState = {
   cart_id: generateCardId(),
   cart_update: null,
   cart_attributes: "Size: S, Color: White",
-  customer: null
+  customer: null,
+  checkout_step: 0,
+  step_action: null
 }
 
 export const actionTypes = {
@@ -41,7 +43,14 @@ export const actionTypes = {
   SET_PAGE_COUNT: 'SET_PAGE_COUNT',
   UPDATE_CART: 'UPDATE_CART',
   UPDATE_CART_ATTRIBUTES: 'UPDATE_CART_ATTRIBUTES',
-  SAVE_USER: 'SAVE_USER'
+  SAVE_USER: 'SAVE_USER',
+  SET_CHECKOUT_STEP: 'SET_CHECKOUT_STEP',
+
+  // action to trigger on the checkout steps
+  // 0: trigger address submission, 1: trigger review , 2: trigger payment
+  // this can be managed by a list of steps actions ... but we keep it simple for now
+
+  SET_STEP_ACTION: 'SET_STEP_ACTION',
 }
 
 // REDUCERS
@@ -78,6 +87,14 @@ export const reducer = (state = exampleInitialState, action) => {
     case actionTypes.SAVE_USER:
       return Object.assign({}, state, {
         customer: action.customer
+      })
+    case actionTypes.SET_CHECKOUT_STEP:
+      return Object.assign({}, state, {
+        checkout_step: action.checkout_step
+      })
+    case actionTypes.SET_STEP_ACTION:
+      return Object.assign({}, state, {
+        step_action: action.step_action
       })
    
     default:
@@ -118,8 +135,15 @@ export const updateCartAttributes = (attrs) => {
 }
 
 export const saveUser = (customer) => {
-  console.log("save user ... ", customer)
   return { type: actionTypes.SAVE_USER, customer: customer}
+}
+
+export const setCheckoutStep = (step) => {
+  return { type: actionTypes.SET_CHECKOUT_STEP, checkout_step: step}
+}
+
+export const setStepAction = (step) => {
+  return { type: actionTypes.SET_STEP_ACTION, step_action: step}
 }
 
 const persistConfig = {

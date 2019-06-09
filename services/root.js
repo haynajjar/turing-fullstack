@@ -8,6 +8,7 @@ module.exports = function (fastify, opts, next) {
   })
   fastify.next('/shop')
   fastify.next('/login')
+  fastify.next('/checkout')
   fastify.next('/sign_up')
   fastify.next('/product')
   fastify.next('/product/:id', (app, req,reply) => {

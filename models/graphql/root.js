@@ -1,10 +1,14 @@
 
-function RootSchema(graphQL,graphQLBookshelf, {ProductType,Product,
+function RootSchema(graphQL,graphQLBookshelf, {knex,
+												ProductType,Product,
 												CategoryType,Category,
 												DepartmentType,Department,
 												AttributeType,Attribute,
-												ShoppingCartType,ShoppingCart
+												ShoppingCartType,ShoppingCart,
+												ShippingRegionType,ShippingRegion,
+												ShippingType,Shipping
 											}){
+
 	return {
 
 			RootQuery:	new graphQL.GraphQLObjectType({
@@ -91,6 +95,22 @@ function RootSchema(graphQL,graphQLBookshelf, {ProductType,Product,
 			            },
 			            resolve: graphQLBookshelf.resolverFactory( ShoppingCart )
 
+			        },
+			        shipping_regions: {
+			            type:  new graphQL.GraphQLList(ShippingRegionType),	            
+			            resolve: graphQLBookshelf.resolverFactory( ShippingRegion )
+
+			        },
+			        shippings: {
+			            type:  new graphQL.GraphQLList(ShippingType),	            
+			            args:{
+			            	shipping_region_id: {
+			            		name: 'shipping_region_id',
+			            		type: new graphQL.GraphQLNonNull(graphQL.GraphQLInt)
+			            	}
+			            },
+			            resolve: graphQLBookshelf.resolverFactory( Shipping )
+			        	
 			        }
 
 	    		}
@@ -98,7 +118,7 @@ function RootSchema(graphQL,graphQLBookshelf, {ProductType,Product,
 
 
 
-
+		// Root mutations 
 		RootMutation: new graphQL.GraphQLObjectType({
 			    name: 'RootMutation',
 			    fields: {
@@ -141,6 +161,49 @@ function RootSchema(graphQL,graphQLBookshelf, {ProductType,Product,
 						}
 					},
 
+					update_cart_attributes: {
+						type: graphQL.GraphQLBoolean,
+						args: {
+							item_id: {
+								name: 'item_id',
+								type: new graphQL.GraphQLNonNull(graphQL.GraphQLInt)
+							},
+							attributes: {
+								name: 'attributes',
+								type: new graphQL.GraphQLNonNull(graphQL.GraphQLString)
+							}
+						},
+						resolve: async function(modelInstance, args, context, info){
+							try{
+								await ShoppingCart.forge({item_id: args.item_id}).save({attributes: args.attributes})
+								return true
+							}catch(e){
+								return e
+							}
+						}
+					},
+					update_cart_quantity: {
+						type: graphQL.GraphQLBoolean,
+						args: {
+							item_id: {
+								name: 'item_id',
+								type: new graphQL.GraphQLNonNull(graphQL.GraphQLInt)
+							},
+							quantity: {
+								name: 'quantity',
+								type: new graphQL.GraphQLNonNull(graphQL.GraphQLInt)
+							}
+						},
+						resolve: async function(modelInstance, args, context, info){
+							try{
+								await ShoppingCart.forge({item_id: args.item_id}).save({quantity: args.quantity})
+								return true
+							}catch(e){
+								return e
+							}
+						}
+					},
+
 					remove_from_cart: {
 						type: graphQL.GraphQLBoolean,
 						args: {
@@ -157,7 +220,105 @@ function RootSchema(graphQL,graphQLBookshelf, {ProductType,Product,
 								return e
 							}
 						}
-					}
+					},
+
+					update_customer_address: {
+						type: graphQL.GraphQLBoolean,
+						args: {
+							customer_id: {
+								name: 'customer_id',
+								type: new graphQL.GraphQLNonNull(graphQL.GraphQLInt)
+							}
+						},
+						resolve: async function(modelInstance, args, context, info){
+							try{
+								await Customer.where({customer_id: args.customer_id})
+									.save({
+											address_1: args.address_1,
+											address_2: args.address_2,
+											city: args.city,
+											region: args.region,
+											postal_code: args.postal_code,
+											country: args.country,
+											shipping_region_id: args.shipping_region_id,
+											day_phone: args.day_phone,
+											eve_phone: args.eve_phone,
+											mob_phone: args.mob_phone
+										})
+								return true
+							}catch(e){
+								return e
+							}
+						}
+					},
+
+					create_order_from_cart: {
+						type: graphQL.GraphQLBoolean,
+						args: {
+							customer_id: {
+								name: 'customer_id',
+								type: new graphQL.GraphQLNonNull(graphQL.GraphQLInt)
+							},
+							cart_id: {
+								name: 'cart_id',
+								type: new graphQL.GraphQLNonNull(graphQL.GraphQLString)
+							},
+							shipping_id: {
+								name: 'shipping_id',
+								type: new graphQL.GraphQLNonNull(graphQL.GraphQLInt)
+							}
+						},
+						resolve: async function(modelInstance, args, context, info){
+							//return new Promise((resolve,reject) => {
+								// find shopping cart item and create order details
+								// create order
+								// order status (may not all be used in this case, just an example)
+								// 0  = created , 1 = pending , 2 = confirmed , 3 = validated
+								// const order = await Order.forge({created_on: new Date(), customer_id: args.customer_id,shipping_id: args.shipping_id}).save()
+								// // create order details from shopping_carts
+								// let collection = await ShoppingCart.where({cart_id: args.cart_id}).fetchAll()
+								// let list = collection.map((item) => { return Object.assign(item, item.serialize({ shallow: true })); })
+								// const orderDetailsData = collection.map((item) => {
+								// 	let product = await Product.where({product_id: item.product_id}).fetch()
+								// 	return {
+								// 		order_id: order.order_id,
+								// 		product_id: item.product_id,
+								// 		product_name: product.name,
+								// 		attributes: item.attributes,
+								// 		quantity: item.quantity,
+								// 		unit_cost: (product.discounted_price||product.price)
+								// 	}
+								// })
+
+								// let orderDerails = OrderDetail.forge(orderDetailsData)
+								
+								// let totalAmount = orderDetailsData.map(item => item.unit_cost*item.quantity).reduce((total,price) => total+price)
+								// order.save({total_amount: totalAmount})
+
+								// orderDerails.invokeThen('save').then(function() {
+								//   console.log('order details saved here ... ')
+								//   resolve()
+								// });
+
+								// tax_id should be set in the store configuration
+
+							//})
+							try{
+								const tax_id =1
+								const result = await knex.raw('CALL shopping_cart_create_order(?,?,?,?)',args.cart_id,args.customer_id,args.shipping_id,tax_id)
+								console.log(result.toJSON())
+								return  {order_id: result[0][0]}
+							}catch(e){
+								return {error: e}
+								
+							}
+						}
+					},
+
+
+
+
+
 
 			    }
 			})

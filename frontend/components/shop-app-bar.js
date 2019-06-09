@@ -24,7 +24,7 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-function ShopAppBar() {
+function ShopAppBar({hideCart}) {
   const classes = useStyles()
   return (
     <React.Fragment>
@@ -37,7 +37,9 @@ function ShopAppBar() {
           </Link>
             <div className={classes.right}>
               <MenuCustomer />
-              <ShoppingCart />
+              {!hideCart && 
+                <ShoppingCart />
+              }
             </div> 
         </Toolbar>
       </AppBar>
