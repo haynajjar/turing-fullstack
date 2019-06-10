@@ -250,75 +250,7 @@ function RootSchema(graphQL,graphQLBookshelf, {knex,
 								return e
 							}
 						}
-					},
-
-					create_order_from_cart: {
-						type: graphQL.GraphQLBoolean,
-						args: {
-							customer_id: {
-								name: 'customer_id',
-								type: new graphQL.GraphQLNonNull(graphQL.GraphQLInt)
-							},
-							cart_id: {
-								name: 'cart_id',
-								type: new graphQL.GraphQLNonNull(graphQL.GraphQLString)
-							},
-							shipping_id: {
-								name: 'shipping_id',
-								type: new graphQL.GraphQLNonNull(graphQL.GraphQLInt)
-							}
-						},
-						resolve: async function(modelInstance, args, context, info){
-							//return new Promise((resolve,reject) => {
-								// find shopping cart item and create order details
-								// create order
-								// order status (may not all be used in this case, just an example)
-								// 0  = created , 1 = pending , 2 = confirmed , 3 = validated
-								// const order = await Order.forge({created_on: new Date(), customer_id: args.customer_id,shipping_id: args.shipping_id}).save()
-								// // create order details from shopping_carts
-								// let collection = await ShoppingCart.where({cart_id: args.cart_id}).fetchAll()
-								// let list = collection.map((item) => { return Object.assign(item, item.serialize({ shallow: true })); })
-								// const orderDetailsData = collection.map((item) => {
-								// 	let product = await Product.where({product_id: item.product_id}).fetch()
-								// 	return {
-								// 		order_id: order.order_id,
-								// 		product_id: item.product_id,
-								// 		product_name: product.name,
-								// 		attributes: item.attributes,
-								// 		quantity: item.quantity,
-								// 		unit_cost: (product.discounted_price||product.price)
-								// 	}
-								// })
-
-								// let orderDerails = OrderDetail.forge(orderDetailsData)
-								
-								// let totalAmount = orderDetailsData.map(item => item.unit_cost*item.quantity).reduce((total,price) => total+price)
-								// order.save({total_amount: totalAmount})
-
-								// orderDerails.invokeThen('save').then(function() {
-								//   console.log('order details saved here ... ')
-								//   resolve()
-								// });
-
-								// tax_id should be set in the store configuration
-
-							//})
-							try{
-								const tax_id =1
-								const result = await knex.raw('CALL shopping_cart_create_order(?,?,?,?)',args.cart_id,args.customer_id,args.shipping_id,tax_id)
-								console.log(result.toJSON())
-								return  {order_id: result[0][0]}
-							}catch(e){
-								return {error: e}
-								
-							}
-						}
-					},
-
-
-
-
-
+					}
 
 			    }
 			})

@@ -42,7 +42,7 @@ function load(bookshelf){
 	let knex = bookshelf.knex
 	// using callback as parameters so the constant will be all declared
 	// it won't show ReferenceError message
-	const Customer = model.extend(CustomerRecord(),CustomerMethods())	
+	const Customer = model.extend(CustomerRecord(() => {return {Order}} ),CustomerMethods())	
 	const Department = model.extend(DepartmentRecord(()=>{return {Category,Product,ProductCategory}}))
 
 	const Attribute = model.extend(AttributeRecord(()=> {return {AttributeValue}}))
@@ -97,6 +97,12 @@ function load(bookshelf){
 	//console.log("Model instance ... ", Department.where({department_id: 1}))
 	// initialize graphql for the models
 	// TODO -- add product attributes types
+
+	// Customer.where({customer_id: 1}).fetch({require: true,withRelated: ['orders']}).then(async customer => {
+	// 			  const order = await customer.related('orders').findWhere({status: 0})
+	// 		      console.log('current order ...',order.serialize({shallow: true}))
+	// })
+
 	const AttributeValueType = AttributeValueSchema(graphQL, graphQLBookshelf)
 	const AttributeType = AttributeSchema(graphQL, graphQLBookshelf, {AttributeValueType,Attribute})
 
@@ -167,7 +173,17 @@ function load(bookshelf){
 			
 	}
 
-	return {Customer, Department, Category, Product, ProductType, CategoryType, query}
+	return {
+			Customer, 
+			Department, 
+			Category, 
+			Product, 
+			ProductType, 
+			CategoryType, 
+			Order, 
+			Shipping, 
+			query
+		}
 
 }
 

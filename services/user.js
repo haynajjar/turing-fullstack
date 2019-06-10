@@ -24,12 +24,22 @@ module.exports = function (fastify, opts, next) {
   		reply.send({success: false, message: 'Missing credentials, all name, email and password are required'})
   		return;
   	}
-  	const Customer = fastify.models.Customer
-  	const user = await Customer.forge({name,email,password}).save()
-  	const token = fastify.jwt.sign({email,name})
-  	const customerRes = user.serialize({ shallow: true })
-    const address = getAddress(customerRes)
-    reply.send({success: true, customer: {customer_id: customerRes.customer_id,email: customerRes.email,name: customerRes.name,token,address}})
+    try{
+    	const Customer = fastify.models.Customer
+    	const user = await Customer.forge({name,email,password}).save()
+    	const token = fastify.jwt.sign({email,name})
+    	const customerRes = user.serialize({ shallow: true })
+      const address = getAddress(customerRes)
+      reply.send({success: true, customer: {customer_id: customerRes.customer_id,email: customerRes.email,name: customerRes.name,token,address}})
+
+    }catch(e){
+      if(e.code == 'ER_DUP_ENTRY'){
+        reply.send({error: 'The email already exists', status: 400})
+      }else {
+        console.error(e)
+        reply.send({error: 'Problem detected, please check your data or try again later'})
+      }
+    }
 
   })
 
@@ -40,27 +50,33 @@ module.exports = function (fastify, opts, next) {
     try {
       const customer = await Customer.login(email,password)
       const token = fastify.jwt.sign({email,name: customer.name})
-      const customerRes = customer.serialize({ shallow: true })
-      const address = getAddress(customerRes)
-      reply.send({success: true, customer: {customer_id: customerRes.customer_id,email: customerRes.email,name: customerRes.name,token,address}})
+      const address = getAddress(customer)
+      reply.send({success: true, customer: {customer_id: customer.customer_id,email: customer.email,name: customer.name,token,address,current_order: customer.current_order}})
     }catch(e){
-      reply.send({error: e})
+      reply.send({error: e.message})
     }
 
   })
 
-  fastify.post('/user/address', async (request, reply)=>{
-    const args = JSON.parse(request.body)
-    const Customer = fastify.models.Customer
-    try{
-       let customer = await Customer.where({customer_id: args.customer_id}).fetch()
-        customer.save(getAddress(args))
-        return {success: true}
-      }catch(e){
-        return {error: e.message}
+    fastify.route({
+      method: 'POST',
+      url: '/user/address',
+      preHandler: fastify.auth([
+        fastify.authenticate
+      ]),
+      handler: async (request, reply)=>{
+        const args = JSON.parse(request.body)
+        const Customer = fastify.models.Customer
+        try{
+           let customer = await Customer.where({customer_id: args.customer_id}).fetch()
+            customer.save(getAddress(args))
+            return {success: true}
+          }catch(e){
+            return {error: e.message}
+          }
       }
 
-  })
+    })
 
 
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -14,6 +14,8 @@ import { connect } from 'react-redux'
 import Container from '@material-ui/core/Container';
 import ShopAppBar from '../components/shop-app-bar'
 import {saveUser} from '../store'
+import {validate} from '../lib/validator'
+import ErrorMessage from '../components/error-message'
 
 const useStyles = makeStyles(theme => ({
   '@global': {
@@ -43,20 +45,16 @@ const useStyles = makeStyles(theme => ({
 function SignIn({customer,saveUser}) {
 
   if(customer){
-      Router.push('/shop')
+      Router.push('/checkout')
 
   }
 
   const classes = useStyles();
+  const [errorMessages,setErrorMessages] = useState({})
+  const [responseError,setResponseError] = useState(null)
 
-  function signInCustomer(event){
-    event.preventDefault();
-    const jdata = {}
-    const data = new FormData(event.target);
-    data.forEach(function(v,k){
-      jdata[k]=v;
-    })
 
+  function callSignIn(jdata){
     fetch('/auth', {
       method: 'POST',
       body: JSON.stringify(jdata),
@@ -67,14 +65,35 @@ function SignIn({customer,saveUser}) {
         if(data.success){
           saveUser(data.customer)
           // redirect to checkout page by default 
-          Router.push('/shop')
+          Router.push('/checkout')
         }else{
           // TODO -- handle error
           console.log(data)
+          if(data.error){
+            setResponseError(data.error)
+          }
         }
         
       })
     });
+  }
+
+  function signInCustomer(event){
+    event.preventDefault();
+    const jdata = {}
+    const data = new FormData(event.target);
+    let errors = {}
+    data.forEach(function(v,k){
+      jdata[k]=v;
+            // validate each key
+      let valid = validate.call(k,v)
+      Object.assign(errors,{[`${k}_error`]: !valid.success,[`${k}_helper`]: valid.helper})
+    })
+    setErrorMessages(errors)
+    if(validate.error(errors)){
+      return;
+    }
+    callSignIn(jdata)
   }
 
 
@@ -83,6 +102,7 @@ function SignIn({customer,saveUser}) {
       <ShopAppBar />
       <Container component="main" maxWidth="xs">
         <CssBaseline />
+        <ErrorMessage message={responseError} />
         <div className={classes.paper}>
           <Typography component="h1" variant="h5">
             Sign in
@@ -98,6 +118,8 @@ function SignIn({customer,saveUser}) {
               name="email"
               autoComplete="email"
               autoFocus
+              helperText={errorMessages.email_helper||''}
+              error={!!errorMessages.email_error}
             />
             <TextField
               variant="outlined"
@@ -109,6 +131,8 @@ function SignIn({customer,saveUser}) {
               type="password"
               id="password"
               autoComplete="current-password"
+              helperText={errorMessages.password_helper||''}
+              error={!!errorMessages.password_error}
             />
             <Button
               type="submit"

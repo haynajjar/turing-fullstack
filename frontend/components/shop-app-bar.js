@@ -7,7 +7,11 @@ import ButtonBase from '@material-ui/core/ButtonBase';
 import { makeStyles } from '@material-ui/styles';
 import ShoppingCart from './shopping-cart'
 import Link from 'next/link'
+import Router from 'next/router'
 import MenuCustomer from './menu-customer'
+import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux'
+import { setPage, selectCategory, selectDepartment, setPageSize } from '../store'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -24,17 +28,25 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-function ShopAppBar({hideCart}) {
+
+function ShopAppBar({hideCart,setPage,selectDepartment,selectCategory,setPageSize}) {
   const classes = useStyles()
+
+  function goToHome(){
+    setPage(1)
+    selectDepartment(null)
+    selectCategory(null)
+    setPageSize(10)
+    Router.push('/')
+  }
+
   return (
     <React.Fragment>
       <AppBar position="fixed" className={classes.root} >
         <Toolbar >
-          <Link prefetch href="/">
-            <ButtonBase>
+            <ButtonBase onClick={goToHome}>
               <img className={classes.img} src="/static/images/tshirtshop.png" alt="Tshirt Shop" />
             </ButtonBase>
-          </Link>
             <div className={classes.right}>
               <MenuCustomer />
               {!hideCart && 
@@ -52,6 +64,7 @@ function ShopAppBar({hideCart}) {
 }
 
 
+const mapDispatchToProps = dispatch =>
+  bindActionCreators({ setPage, selectCategory, selectDepartment, setPageSize }, dispatch)
 
-
-export default ShopAppBar
+export default connect(null,mapDispatchToProps)(ShopAppBar)

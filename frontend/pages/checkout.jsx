@@ -2,19 +2,23 @@ import React, {useState, useEffect} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Paper from '@material-ui/core/Paper';
+import Grid from '@material-ui/core/Grid';
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
 import Button from '@material-ui/core/Button';
-import Link from '@material-ui/core/Link';
 import Typography from '@material-ui/core/Typography';
+import Avatar from '@material-ui/core/Avatar';
 import AddressForm from '../components/address-form';
 import PaymentForm from '../components/payment-form';
 import ReviewOrder from '../components/review-order';
 import ShopAppBar from '../components/shop-app-bar';
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { setStepAction,setCheckoutStep } from '../store'
+import { setStepAction,setCheckoutStep,saveUser,setCheckoutError } from '../store'
+import Link from 'next/link';
+import Router from 'next/router';
+import ErrorMessage from '../components/error-message'
 
 
 const useStyles = makeStyles(theme => ({
@@ -52,6 +56,11 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(3),
     marginLeft: theme.spacing(1),
   },
+  bigAvatar: {
+    margin: 10,
+    width: 160,
+    height: 160,
+  }
 }));
 
 const steps = ['Shipping address', 'Review your order', 'Payment details'];
@@ -69,27 +78,84 @@ function getStepContent(step) {
   }
 }
 
-function Checkout({checkout_step,setStepAction,setCheckoutStep}) {
+function Checkout({checkout_error,customer,checkout_step,setStepAction,setCheckoutStep,saveUser,setCheckoutError}) {
   const classes = useStyles();
   const [activeStep, setActiveStep] = useState(checkout_step||0);
 
+  const [currentOrderMessage, setCurrentOrderMessage] = useState(false)
+
   useEffect(() => {
-    if(checkout_step)
+    if(checkout_step){
       setActiveStep(checkout_step)
+      setCurrentOrderMessage(false)
+    }
     setStepAction(null)
     setCheckoutStep(null)
   }, [checkout_step])
 
+  useEffect(() => {
+    // need to change checkout step on error so it can be updated again when request succeed
+    setStepAction(null)
+  },[checkout_error])
+
+  // check if user has current order 
+  // if so redirect him to step 3
+  useEffect(() => {
+    if(!customer)    
+      Router.push('/login')
+
+    if(customer && customer.current_order && activeStep<2){
+      if(!checkout_error)
+        setCurrentOrderMessage(true)
+      setActiveStep(2)
+    }
+  })
+
+  if(!customer){
+      return null
+  }
+
+  function cancelOrder(){
+    // call api to cancel order
+    if(confirm('Are you sure you want to cancel this order ?'))
+    fetch('/order/cancel',{
+      method: 'POST',
+      headers: new Headers({'user-key': customer.token}),
+      body: JSON.stringify({order_id: customer.current_order}),
+    }).then(res => {
+       res.json().then((data) => {
+        if(data.success){
+          setCheckoutError(null)
+          let newCustomer = {...customer}
+          delete newCustomer.current_order
+          saveUser(newCustomer)
+          setActiveStep(0)
+          setCurrentOrderMessage(false)
+
+        }else{
+          // TODO -- handle error
+          if(data.error)
+            setCheckoutError(data.error)
+          console.log(data)
+        }
+        
+      })
+    });
+  }
+  
+
   const handleNext = () => {
     // handle current step action
     // the listener is managed on the prop step_action, see SET_STEP_ACTION on store.js for info
+     if(checkout_error)
+      setCheckoutError(null)     
      setStepAction(activeStep)
   };
 
   const handleBack = () => {
+    if(checkout_error)
+      setCheckoutError(null)
     setActiveStep(activeStep - 1);
-    //setCheckoutStep(activeStep - 1)
-    //setStepAction(activeStep-1)
   };
 
   return (
@@ -97,6 +163,18 @@ function Checkout({checkout_step,setStepAction,setCheckoutStep}) {
       <CssBaseline />
       <ShopAppBar hideCart />
       <main className={classes.layout}>
+        <ErrorMessage message={checkout_error} />
+        {currentOrderMessage &&
+          <Paper className={classes.paper}>
+            <Typography variant="h5" component="h3" color="secondary">
+              You have already an order in progress 
+            </Typography>
+            <Typography component="p">
+              Your order #{customer.current_order} is currently active, complete this step or click below to cancel it.
+            </Typography>
+            <Button color="secondary" variant="contained" className={classes.button} onClick={cancelOrder}>Cancel Order</Button>
+          </Paper>
+        }
         <Paper className={classes.paper}>
           <Typography component="h1" variant="h4" align="center">
             Checkout
@@ -110,15 +188,20 @@ function Checkout({checkout_step,setStepAction,setCheckoutStep}) {
           </Stepper>
           <React.Fragment>
             {activeStep === steps.length ? (
-              <React.Fragment>
-                <Typography variant="h5" gutterBottom>
-                  Thank you for your order.
+              <Paper className={classes.paper}>
+                <Grid container justify="center" alignItems="center">
+                  <Avatar alt="Order confirmed" src="/static/images/order_confirmed.jpg" className={classes.bigAvatar} />
+                </Grid>
+                <Typography variant="h5" component="h3" color="primary">
+                  Congrats ! your order is confirmed
                 </Typography>
-                <Typography variant="subtitle1">
-                  Your order number is #2001539. We have emailed your order confirmation, and will
-                  send you an update when your order has shipped.
+                <Typography component="p">
+                  Would you like to check out our awesome tshirts collection in the store !
                 </Typography>
-              </React.Fragment>
+                <Link href="/" prefetch>
+                  <Button color="primary" variant="contained" className={classes.button} >Continue Shopping</Button>
+                </Link>
+              </Paper>
             ) : (
               <React.Fragment>
                 {getStepContent(activeStep)}
@@ -148,12 +231,12 @@ function Checkout({checkout_step,setStepAction,setCheckoutStep}) {
 
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ setStepAction,setCheckoutStep }, dispatch)
+  bindActionCreators({ setStepAction,setCheckoutStep,saveUser, setCheckoutError }, dispatch)
 
 
 const mapStateToProps = state => {
-  const { checkout_step } = state
-  return { checkout_step }
+  const { checkout_step, customer, checkout_error } = state
+  return { checkout_step, customer, checkout_error }
 }
 
 export default connect(mapStateToProps,mapDispatchToProps)(Checkout)

@@ -26,7 +26,9 @@ const exampleInitialState = {
   cart_attributes: "Size: S, Color: White",
   customer: null,
   checkout_step: 0,
-  step_action: null
+  step_action: null,
+  shipping_id: '0',
+  checkout_error: null
 }
 
 export const actionTypes = {
@@ -45,6 +47,8 @@ export const actionTypes = {
   UPDATE_CART_ATTRIBUTES: 'UPDATE_CART_ATTRIBUTES',
   SAVE_USER: 'SAVE_USER',
   SET_CHECKOUT_STEP: 'SET_CHECKOUT_STEP',
+  SET_SHIPPING_ID: 'SET_SHIPPING_ID',
+  SET_CHECKOUT_ERROR: 'SET_CHECKOUT_ERROR',
 
   // action to trigger on the checkout steps
   // 0: trigger address submission, 1: trigger review , 2: trigger payment
@@ -96,6 +100,14 @@ export const reducer = (state = exampleInitialState, action) => {
       return Object.assign({}, state, {
         step_action: action.step_action
       })
+    case actionTypes.SET_SHIPPING_ID:
+      return Object.assign({}, state, {
+        shipping_id: action.shipping_id
+      })
+    case actionTypes.SET_CHECKOUT_ERROR:
+      return Object.assign({}, state, {
+        checkout_error: action.checkout_error
+      })
    
     default:
       return state
@@ -146,11 +158,19 @@ export const setStepAction = (step) => {
   return { type: actionTypes.SET_STEP_ACTION, step_action: step}
 }
 
+export const setShipping = (shipping_id) => {
+  return { type: actionTypes.SET_SHIPPING_ID, shipping_id }
+}
+
+export const setCheckoutError = (checkout_error) => {
+  return { type: actionTypes.SET_CHECKOUT_ERROR, checkout_error }
+}
+
 const persistConfig = {
   key: 'primary',
   storage,
   // we need to persist the following states, 
-  whitelist: ['cart_id','cart_update','cart_attributes','customer','department_id','category_id','page','page_size'] 
+  whitelist: ['cart_id','cart_update','cart_attributes','customer','department_id','category_id','page','page_size','shipping_id'] 
 }
 
 const persistedReducer = persistReducer(persistConfig, reducer)

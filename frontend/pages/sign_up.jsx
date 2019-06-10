@@ -1,5 +1,5 @@
     
-import React from 'react';
+import React, {useState} from 'react';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -17,7 +17,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import {saveUser} from '../store'
 import ShopAppBar from '../components/shop-app-bar'
-
+import {validate} from '../lib/validator'
+import ErrorMessage from '../components/error-message'
 
 const useStyles = makeStyles(theme => ({
   '@global': {
@@ -50,15 +51,12 @@ function SignUp({customer,saveUser}) {
   if(customer)
       Router.push('/shop')
 
-  const classes = useStyles();
-  function signUpCustomer(event){
-    event.preventDefault();
-    const jdata = {}
-    const data = new FormData(event.target);
-    data.forEach(function(v,k){
-      jdata[k]=v;
-    })
+  const [errorMessages,setErrorMessages] = useState({})
+  const [responseError,setResponseError] = useState(null)
 
+  const classes = useStyles();
+
+  function callSignUp(jdata){
     fetch('/signup', {
       method: 'POST',
       body: JSON.stringify(jdata),
@@ -73,10 +71,39 @@ function SignUp({customer,saveUser}) {
         }else{
           // TODO -- handle error
           console.log(data)
+          if(data.error){
+            setResponseError(data.error)
+          }
         }
         
       })
     });
+  }
+
+
+  function signUpCustomer(event){
+    event.preventDefault();
+    const jdata = {}
+    const data = new FormData(event.target);
+    let errors = {}
+    data.forEach(function(v,k){
+      // validate each key
+      let valid = validate.call(k,v)
+      Object.assign(errors,{[`${k}_error`]: !valid.success,[`${k}_helper`]: valid.helper})
+
+      jdata[k]=v;
+    })
+    
+    setErrorMessages(errors)
+
+    // console.log(errorMessages)
+    // console.log(validate.error(errorMessages))
+
+    if(validate.error(errors)){
+      return;
+    }
+
+    callSignUp(jdata)
   }
 
   return (
@@ -84,6 +111,7 @@ function SignUp({customer,saveUser}) {
         <ShopAppBar />
         <Container component="main" maxWidth="xs">
           <CssBaseline />
+          <ErrorMessage message={responseError} />
           <div className={classes.paper}>
             <Typography component="h1" variant="h5">
               Sign up
@@ -100,6 +128,8 @@ function SignUp({customer,saveUser}) {
                     label="Name"
                     name="name"
                     autoComplete="name"
+                    helperText={errorMessages.name_helper||''}
+                    error={!!errorMessages.name_error}
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -111,6 +141,8 @@ function SignUp({customer,saveUser}) {
                     label="Email Address"
                     name="email"
                     autoComplete="email"
+                    helperText={errorMessages.email_helper||''}
+                    error={!!errorMessages.email_error}
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -123,6 +155,8 @@ function SignUp({customer,saveUser}) {
                     type="password"
                     id="password"
                     autoComplete="current-password"
+                    helperText={errorMessages.password_helper||''}
+                    error={!!errorMessages.password_error}
                   />
                 </Grid>
                 

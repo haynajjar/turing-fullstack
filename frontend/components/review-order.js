@@ -13,12 +13,17 @@ import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
+import Radio from '@material-ui/core/Radio';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import FormHelperText from '@material-ui/core/FormHelperText';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import ClearIcon from '@material-ui/icons/delete';
 import {priceFormat} from '../lib/util';
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { useQuery, useMutation } from 'urql'
 import SelectAttributes from './select-attributes'
-
+import {setShipping, setCheckoutStep, saveUser, setCheckoutError } from '../store'
 
 const getCartItems = `
   query CartItems($cart_id: String!){
@@ -71,6 +76,9 @@ const updateCartAttributes = `
 const useStyles = makeStyles(theme => ({
   listItem: {
     padding: theme.spacing(1, 0),
+  },  
+  listSmall: {
+    padding: 0,
   },
   total: {
     fontWeight: '700',
@@ -86,7 +94,7 @@ const useStyles = makeStyles(theme => ({
     marginRight: theme.spacing(1),
     width: 70,
   },
-  okButton:{
+  button:{
     'margin-left': 5,
     'margin-right': 5,
     'margin-top': 5,
@@ -98,15 +106,19 @@ const useStyles = makeStyles(theme => ({
     flex: '1 1 auto',
     display: 'block',
     textAlign: 'left'
+  },
+  group: {
+    margin: theme.spacing(1, 0),
   }
 }));
 
-function Review({cart_id,customer}) {
+function Review({cart_id,customer,shipping_id,step_action,setShipping,setCheckoutStep,saveUser,setCheckoutError}) {
   const classes = useStyles();
 
   const [resCart, executeQueryCart] = useQuery({
     query: getCartItems,
-    variables: {cart_id}
+    variables: {cart_id},
+    requestPolicy: 'network-only'
   });
 
   const [resShipping, executeQueryShipping] = useQuery({
@@ -114,12 +126,13 @@ function Review({cart_id,customer}) {
     variables: {shipping_region_id: (customer.address ? customer.address.shipping_region_id : 0)}
   });
 
-
+  const [processing, setProcessing] = useState(false)
   const [qtInputs,setQtInputs] = useState([])
   const [attrInputs,setAttrInputs] = useState([])
   const [anchorEl, setAnchorEl] = useState(null);
   const [quantity, setQuantity] = useState(null);
   const [cartTotal, setCartTotal] = useState({})
+  const [shippingVal, setShippingVal] = useState(shipping_id)
   // selected attributes
   const [selectedAttr, setSelectedAttr] = useState({});
 
@@ -130,23 +143,73 @@ function Review({cart_id,customer}) {
 
 
   useEffect(() => {
-
+    if(!resCart.fetching){
+      setCheckoutError('Your shopping cart is empty, please go to the store and add some tishirts then come back ;)')
+    }
     if(resCart.data && resCart.data.shopping_cart){
       const shoppingCart = resCart.data.shopping_cart
       setQtInputs([...Array(shoppingCart.length)].map(e => false))
       setAttrInputs([...Array(shoppingCart.length)].map(e => false))
       if(shoppingCart.length > 0){
-        const total = shoppingCart.map((item) => (item.product.discounted_price||item.product.price)*item.quantity).reduce((sum,n) => sum+n).toFixed(2)
+        setCheckoutError(null)
+        let total = shoppingCart.map((item) => (item.product.discounted_price||item.product.price)*item.quantity).reduce((sum,n) => sum+n)
         const num_items = shoppingCart.length
         const sum_items = shoppingCart.map((item) => item.quantity).reduce((sum,n) => sum+n)
+
+        let selectedShipping = null
+        // check if shipping exist 
+        if(resShipping.data && resShipping.data.shippings){
+          const shippings = resShipping.data.shippings
+          const shippingObj = shippings.filter(sh => sh.shipping_id == parseInt(shippingVal))
+          if(shippingObj.length>0){
+            total += parseFloat(shippingObj[0].shipping_cost)
+            selectedShipping = String(shippingObj[0].shipping_id) 
+          }
+          if(!selectedShipping){
+            selectedShipping = String(resShipping.data.shippings[0].shipping_id)
+          }
+          setShipping(selectedShipping)
+        }
 
         if(total!=cartTotal.total)
           setCartTotal({total,num_items,sum_items}) 
         
       }
     }
-  },[resCart])
+    
+  },[resCart,shippingVal])
 
+
+  // use this to detect next_step
+  useEffect(() =>{
+    // TODO check the form validation
+    // step_action is reponsible for triggering the action
+    // 0: trigger address submission, 1: trigger review , 2: trigger payment
+    // send update address
+    if(step_action === 1 && cartTotal.total){
+      setProcessing(true)
+      fetch('/order',{
+          method: 'POST',
+          headers: new Headers({'user-key': customer.token}),
+          body: JSON.stringify({customer_id: customer.customer_id, shipping_id: parseInt(shippingVal), cart_id})
+        }).then(res => {
+          res.json().then(data => {
+            setProcessing(false)
+            if(data.success){
+              // trigger the event address updated!
+              setCheckoutStep(2)
+              let newCustomer = {...customer}
+              newCustomer['current_order'] = data.order_id
+              saveUser(newCustomer)
+            }else{
+              if(data.error)
+                setCheckoutError(data.error)
+              console.error(data)
+            }
+          })
+        })
+    }
+  }, [step_action])
 
 
   function showQtInput(evt,index,quantity){
@@ -209,6 +272,17 @@ function Review({cart_id,customer}) {
     setQuantity(null)
   }
 
+  function removeFromCart(item_id){
+    if(confirm('Are you sure ?'))
+    executeRemoveCart({item_id}).then(rmRes => {
+      if(rmRes.data.remove_from_cart){
+        executeQueryCart({requestPolicy: 'network-only'})
+       
+      }
+    })
+  }
+
+
   if(!resCart.data)
     return null
 
@@ -217,13 +291,19 @@ function Review({cart_id,customer}) {
       <Typography variant="h6" gutterBottom>
         Order summary
       </Typography>
+      {processing ? ( 
+          <Typography variant="h6" component="h3" >
+                        Processing ...
+          </Typography>
+      ) : (
       <List disablePadding>
         {resCart.data.shopping_cart && resCart.data.shopping_cart.map((cart,index) => (
             <ListItem className={classes.listItem} key={cart.item_id}>
-
+              <Button className={classes.button} size="small" color="secondary" onClick={() => {removeFromCart(cart.item_id)}}>
+                    <ClearIcon />
+              </Button>
               <ButtonBase className={classes.btnAttributes} aria-controls="fade-attr" aria-haspopup="true" onClick={(evt) => {showAttrInput(evt,index,cart.attributes,cart.product_id)}}>
                 <ListItemText primary={cart.product.name} secondary={cart.attributes} />
-              
               </ButtonBase>
               <Menu
                 id="fade-attr"
@@ -240,9 +320,7 @@ function Review({cart_id,customer}) {
                     selected_attr={{...selectedAttr}}
                   />
                 }
-               
-
-                <Button size="small" className={classes.okButton} color="secondary" variant="contained" onClick={() => {updateAttribute(cart.item_id,index)}}>ok</Button>
+                <Button size="small" className={classes.button} color="secondary" variant="contained" onClick={() => {updateAttribute(cart.item_id,index)}}>ok</Button>
               </Menu>
 
               <ButtonBase aria-controls="fade-qt" aria-haspopup="true" onClick={(evt) => {showQtInput(evt,index,cart.quantity)}}>
@@ -267,7 +345,7 @@ function Review({cart_id,customer}) {
                     }}
                     inputProps={{min: 1}}
                   />
-                  <Button size="small" className={classes.okButton} color="secondary" variant="contained" onClick={() => {updateQuantity(cart.item_id,index)}}>ok</Button>
+                  <Button size="small" className={classes.button} color="secondary" variant="contained" onClick={() => {updateQuantity(cart.item_id,index)}}>ok</Button>
               </Menu>
 
               <Typography variant="subtitle1">
@@ -276,27 +354,61 @@ function Review({cart_id,customer}) {
             </ListItem>
 
           ))}
-        
+
+         <ListItem className={classes.listItem}>
+          <ListItemText>
+            <Typography variant="h6" gutterBottom className={classes.title}>
+              Shipping
+            </Typography>
+          </ListItemText>
+        </ListItem>
+
+        {resShipping.data &&
+          <RadioGroup
+            aria-label="Shipping"
+            name="shipping"
+            className={classes.group}
+            value={shippingVal}
+            onChange={(evt) => {setShippingVal(evt.target.value)}}
+          >
+            {resShipping.data.shippings.map((shipping,i) => (
+                  <ListItem key={i} className={classes.listSmall}>
+                    <ListItemText>
+                      <FormControlLabel value={String(shipping.shipping_id)} control={<Radio />} label={shipping.shipping_type} />
+                    </ListItemText>
+                    <Typography variant="subtitle1" >
+                      {priceFormat(shipping.shipping_cost)}
+                    </Typography>
+                  </ListItem>
+              ))}
+          </RadioGroup>
+        }
+
+
         <ListItem className={classes.listItem}>
-          <ListItemText primary="Total" />
+          <ListItemText>
+            <Typography variant="h6" gutterBottom className={classes.title}>
+              Total
+            </Typography>
+          </ListItemText>
           <Typography variant="subtitle1" className={classes.total}>
             {priceFormat(cartTotal.total)}
           </Typography>
         </ListItem>
       </List>
-     
+      )}
     </React.Fragment>
   );
 }
 
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({  }, dispatch)
+  bindActionCreators({ setShipping, setCheckoutStep, saveUser, setCheckoutError }, dispatch)
 
 
 const mapStateToProps = state => {
-  const { customer,cart_id } = state
-  return { customer,cart_id }
+  const { customer, cart_id, shipping_id, step_action } = state
+  return { customer, cart_id, shipping_id, step_action }
 }
 
 

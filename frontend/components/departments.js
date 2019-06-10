@@ -52,8 +52,8 @@ function Departments({department_id, selectDepartment, selectCategory, setPage})
   return (
     <div>
       <Box  m={1}>
-          <Typography gutterBottom variant="h5" component="h4" >
-                Filter
+          <Typography gutterBottom variant="h6" component="h4" >
+                Departments
           </Typography>
       </Box>
       <Paper className={classes.root}>

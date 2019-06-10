@@ -3,17 +3,26 @@ import { makeStyles } from '@material-ui/core/styles';
 import ButtonBase from '@material-ui/core/ButtonBase';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
+import Link from '@material-ui/core/Link';
 import Typography from '@material-ui/core/Typography';
+import Breadcrumbs from '@material-ui/core/Breadcrumbs';
+import Paper from '@material-ui/core/Paper';
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { updateCartAttributes } from '../store'
 import { useQuery } from 'urql';
 import AddToCartBtn from './add-to-cart-btn'
 import {priceFormat} from '../lib/util'
+import Router from 'next/router'
 
 const useStyles = makeStyles(theme => ({
   root: {
     flexGrow: 1,
+  },
+  paper: {
+    //padding: theme.spacing(1, 2),
+    display: 'block',
+    marginBottom: theme.spacing(5)
   },
   image: {
     width: 64,
@@ -82,6 +91,10 @@ function ProductDetails({product_id, cart_id,cart_update, cart_attributes, updat
     return selectedAttributeValues[attribute] === attribute_value ? 'secondary' : 'primary'
   }
 
+  // function goToProducts(){
+  //   Router.push('/')
+  // }
+
 
   if (!res.data) {
     return null;
@@ -92,13 +105,35 @@ function ProductDetails({product_id, cart_id,cart_update, cart_attributes, updat
   return (
     <div className={classes.root}>
       <Grid container className={classes.root}>
+            
 
             {res.fetching && <Typography gutterBottom variant="h5" component="h4" noWrap>
                           Loading ...
                         </Typography>
               }
             
-          
+
+            
+            <Grid container>
+              <Grid item md={3} sm={6} xs={12}>
+              </Grid>
+              <Grid item md={3} sm={6} xs={12}>
+                <Paper elevation={0} className={classes.paper}>
+                    <Breadcrumbs aria-label="Breadcrumb">
+                      <Link color="inherit" href="/" >
+                        Products
+                      </Link>
+                      <Link color="inherit" aria-current="page">
+                        {product && 
+                            <span>{product.name}</span>
+                        }
+                      </Link>
+                      
+                    </Breadcrumbs>
+                  </Paper>
+              </Grid>
+            </Grid>
+
             <Grid item md={3} sm={6} xs={12}>
                 <div >
                   <img  alt={product.name} src={`/static/product_images/${imgName || product.image}`} />
@@ -112,8 +147,10 @@ function ProductDetails({product_id, cart_id,cart_update, cart_attributes, updat
 
             </Grid>
             <Grid item xs={12} sm container>
+
               <Grid item xs container direction="column" spacing={2}>
                 <Grid item xs>
+                  
                   <Typography gutterBottom variant="h6">
                     {product.name}
                   </Typography>

@@ -80,7 +80,7 @@ const useStyles = makeStyles(theme => ({
 }))
 
 
-function ShoppingCart({cart_update, cart_id, setUpShoppingCart}) {
+function ShoppingCart({customer, cart_update, cart_id, setUpShoppingCart}) {
 
   const classes = useStyles()
 
@@ -164,7 +164,7 @@ function ShoppingCart({cart_update, cart_id, setUpShoppingCart}) {
 
   return (
     <div className={classes.root}>
-      <Badge badgeContent={cartTotal.sum_items} color="secondary">
+      <Badge badgeContent={cartTotal.sum_items || (customer && customer.current_order && 1)} color="secondary">
         <ButtonBase onClick={showCart}>
           
           <ShoppingCartIcon className={classes.img} />
@@ -172,8 +172,8 @@ function ShoppingCart({cart_update, cart_id, setUpShoppingCart}) {
       </Badge>
 
       <Popper placement="top-start" anchorEl={anchorEl}  className={classes.popper}  open={openCart}  transition>
-          <Paper >
-            {!res.fetching && 
+          {!res.fetching && 
+            <Paper >
 
               <List className={classes.list}>
                 {res.data.shopping_cart.map((cart) => (
@@ -198,30 +198,41 @@ function ShoppingCart({cart_update, cart_id, setUpShoppingCart}) {
 
                 ))}
 
-                <ListItem>
-                  <ListItemText primary="Total"  />
-                  <ListItemSecondaryAction>
-                    <Typography variant="body1" >
-                      {priceFormat(cartTotal.total)}
-                    </Typography>
-                  </ListItemSecondaryAction>
-                </ListItem>
-                <ListItem>
-                  <Link href="/checkout" prefetch>
-                    <Button fullWidth variant="contained" color="secondary">
-                      <ShoppingCartIcon />
-                      Checkout
-                    </Button>
-                  </Link>
-                  
-                </ListItem>
-                <Divider  component="li" />
-                
+                {!!cartTotal.total && 
+                  <ListItem>
+                    <ListItemText primary="Total"  />
+                    <ListItemSecondaryAction>
+                      <Typography variant="body1" >
+                        {priceFormat(cartTotal.total)}
+                      </Typography>
+                    </ListItemSecondaryAction>
+                  </ListItem>
+                }
+                {customer && customer.current_order && !cartTotal.total &&
+                  <ListItem>
+                    <Link href="/checkout" prefetch>
+                      <Button fullWidth variant="contained" color="secondary">
+                        <ShoppingCartIcon />
+                        Complete Order #{customer.current_order}
+                      </Button>
+                    </Link>
+                  </ListItem>
+                }
+                {!!cartTotal.total &&
+                  <ListItem>
+                    <Link href="/checkout" prefetch>
+                      <Button fullWidth variant="contained" color="secondary">
+                        <ShoppingCartIcon />
+                        Checkout
+                      </Button>
+                    </Link>
+                  </ListItem>
+                }
 
               </List>
-          }
             
           </Paper>
+        }
           
       </Popper>
     </div>
@@ -233,8 +244,8 @@ const mapDispatchToProps = dispatch =>
 
 
 const mapStateToProps = state => {
-  const { cart_update,cart_id } = state
-  return { cart_update,cart_id }
+  const { cart_update,cart_id, customer } = state
+  return { cart_update,cart_id, customer }
 }
 
 export default connect(mapStateToProps,mapDispatchToProps)(ShoppingCart)

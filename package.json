@@ -40,10 +40,12 @@
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-redux": "^5.0.1",
+    "react-text-mask": "^5.4.3",
     "redux": "^3.6.0",
     "redux-devtools-extension": "^2.13.2",
     "redux-persist": "^5.10.0",
     "remove": "^0.1.5",
+    "stripe": "^7.1.0",
     "styled-components": "^4.2.1",
     "urql": "^1.1.1"
   },

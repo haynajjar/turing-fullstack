@@ -49,7 +49,6 @@ function MenuCustomer({customer,saveUser}) {
             onClose={handleClose}
             TransitionComponent={Fade}
           >
-            <MenuItem onClick={() => {Router.push('/profile')}}>Profile</MenuItem>
             <MenuItem onClick={logout}>Logout</MenuItem>
           </Menu>
         </React.Fragment>
