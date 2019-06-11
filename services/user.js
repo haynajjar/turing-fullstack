@@ -23,7 +23,7 @@ module.exports = function (fastify, opts, next) {
     try{
     	const Customer = fastify.models.Customer
     	const user = await Customer.forge({name,email,password}).save()
-    	const token = fastify.jwt.sign({email,name})
+    	const token = fastify.jwt.sign({email,name,customer_id: user.id})
     	const customerRes = user.serialize({ shallow: true })
       const address = getAddress(customerRes)
       reply.send({success: true, customer: {customer_id: customerRes.customer_id,email: customerRes.email,name: customerRes.name,token,address}})

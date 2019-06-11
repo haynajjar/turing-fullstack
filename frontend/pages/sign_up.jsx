@@ -67,9 +67,8 @@ function SignUp({customer,saveUser}) {
         if(data.success){
           saveUser(data.customer)
           // redirect to checkout page by default 
-          Router.push('/shop')
+          Router.push('/checkout')
         }else{
-          // TODO -- handle error
           console.log(data)
           if(data.error){
             setResponseError(data.error)
