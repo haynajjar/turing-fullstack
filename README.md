@@ -2,6 +2,7 @@
 
 This project presents the fullstack turing challenge "Tshirtstore"
 To test the project online you can visit [turing.fouita.com](http://turing.fouita.com) 
+See [video demo here](https://drive.google.com/file/d/1yJd6qSC5rs6Eg8fg75rJDsGx-yJLgJjf/view?usp=sharing) 
 
 # Table of Contents
 1. [Installation](#installation)
