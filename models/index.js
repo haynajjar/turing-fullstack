@@ -157,17 +157,15 @@ function load(bookshelf){
 	const query = (queryString,variables) => {
 		return new Promise((resolve,reject)=>{
 
-		 let context = {loaders: graphQLBookshelf.getLoaders()}
-		 //console.log(context.loaders)
-	     graphQL.graphql( graphQLSchema, queryString, null, context,variables).then(function(result,v) {
-	     	 //console.log(result)
-		     if(result.data){
-		     	// getting pagination from context is propably not the best method, 
-		     	// but it is the easiest , otherwise we need to get deeper about how we handle resolvers internally
-		     	result.data.pagination = context.pagination
-		     }
-		     resolve(result)
-		 });
+			 let context = {loaders: graphQLBookshelf.getLoaders()}
+		     graphQL.graphql( graphQLSchema, queryString, null, context,variables).then(function(result) {
+			     if(result.data){
+			     	// getting pagination from context is propably not the best method, 
+			     	// but it is the easiest , otherwise we need to get deeper about how we handle resolvers internally
+			     	result.data.pagination = context.pagination
+			     }
+			     resolve(result)
+			 }).catch((err) => {reject(err)})
 			
 		})
 			

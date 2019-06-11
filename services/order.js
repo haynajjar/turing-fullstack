@@ -72,12 +72,13 @@ module.exports = function (fastify, opts, next) {
         const args = JSON.parse(request.body)
         let exp_date = !!args.expiry_date && args.expiry_date.split('/')
         // get order total from db 
-        const order = await fastify.models.Order.forge({order_id: args.order_id, customer_id: request.user.customer_id}).fetch()
-        if(!order){
-          reply.send({error: "can't find your order" })
-          return;
-        }
         try{
+          const order = await fastify.models.Order.forge({order_id: args.order_id, customer_id: request.user.customer_id}).fetch()
+          if(!order){
+            reply.send({error: "can't find your order" })
+            return;
+          }
+          
           const token= await stripe.tokens.create({
             card: {
               number: args.card_number,

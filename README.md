@@ -205,6 +205,7 @@ All the application REST request are available under `services` directory
 | POST | /order/charge | `order_id, card_name, card_number, expiry_date (mm/yy), cvc` | yes | charge user using stripe api with the order amount and update order status to 1 (confirmed) |
 
 ## Work not yet done
+ - Blocking bug after few requests (investigating ... )
  - Authentication using social media
  - Unit Test Cases 
  - Still some things to fix (exp: caching user address (can be done using logout and login again))

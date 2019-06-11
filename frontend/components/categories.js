@@ -46,7 +46,8 @@ function Categories({department_id,category_id,selectCategory, setPage}) {
   }
 
   useEffect(() => {
-    setSelectedCategory(category_id)
+    if(selectedCategory != category_id)
+      setSelectedCategory(category_id)
   },[category_id])
   
   if (!res.data) {

@@ -42,7 +42,8 @@ function Departments({department_id, selectDepartment, selectCategory, setPage})
   }
 
   useEffect( () => {
-    setSelectedDepartment(department_id)
+    if(selectedDepartment != department_id)
+      setSelectedDepartment(department_id)
   },[department_id])
   
   if (!res.data) {
