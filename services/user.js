@@ -65,9 +65,8 @@ module.exports = function (fastify, opts, next) {
         const args = JSON.parse(request.body)
         const Customer = fastify.models.Customer
         try{
-           let customer = await Customer.where({customer_id: args.customer_id}).fetch()
-           // TODO - FIX this , it causes a bug when the user insert bad zipcode
-            customer.save(getAddress(args))
+           let customer = await Customer.where({customer_id: request.user.customer_id}).fetch()
+            await customer.save(getAddress(args))
             reply.send({success: true})
           }catch(e){
             reply.send({error: e.message})
