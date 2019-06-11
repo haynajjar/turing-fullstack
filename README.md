@@ -41,7 +41,7 @@ This will make the application look much faster
 to run in production you need to build the project first
 
 ```sh
-npm run build
+npm run build frontend
 npm run prod
 # or launch with pm2 using 
 pm2 sart start.sh --name turing
