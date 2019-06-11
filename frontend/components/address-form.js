@@ -53,8 +53,8 @@ function AddressForm({customer, step_action, setCheckoutStep, saveUser, setCheck
       }
       setErrorMessages(errors)
       if(validate.error(errors)){
-        setCheckoutStep(0)
         return;
+        setCheckoutStep(0)
       }
       setProcessing(true)
       fetch('/user/address',{
@@ -67,7 +67,8 @@ function AddressForm({customer, step_action, setCheckoutStep, saveUser, setCheck
             if(data.success){
               // trigger the event address updated!
               setCheckoutStep(1)
-              saveUser(Object.assign(customer,{address}))
+              const newCustomer = Object.assign(customer,{address})
+              saveUser(newCustomer)
             }else{
               if(data.error)
                 setCheckoutError(data.error)

@@ -110,7 +110,7 @@ function Products({department_id,category_id, page_size, page ,setPageCount}) {
             {!res.fetching && data && data.products.map(({product_id,name,description,thumbnail,price,discounted_price}) => (
               <Grid key={product_id} item md={3} sm={6} xs={12}>
                   <Card  className={classes.card}>
-                    <Link prefetch href={"/product/"+product_id} >
+                    <Link href={"/product/"+product_id} >
                       <CardActionArea>
                         <CardMedia
                           className={classes.media}

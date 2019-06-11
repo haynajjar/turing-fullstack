@@ -17,7 +17,7 @@ import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-import ClearIcon from '@material-ui/icons/delete';
+import ClearIcon from '@material-ui/icons/Delete';
 import {priceFormat} from '../lib/util';
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
@@ -158,6 +158,7 @@ function Review({cart_id,customer,shipping_id,step_action,setShipping,setCheckou
 
         let selectedShipping = null
         // check if shipping exist 
+        // TODO - there is a bug here somwhere, in selected shipping step concerning default option at the beginning, NEED FIX!
         if(resShipping.data && resShipping.data.shippings){
           const shippings = resShipping.data.shippings
           const shippingObj = shippings.filter(sh => sh.shipping_id == parseInt(shippingVal))
@@ -168,6 +169,7 @@ function Review({cart_id,customer,shipping_id,step_action,setShipping,setCheckou
           if(!selectedShipping){
             selectedShipping = String(resShipping.data.shippings[0].shipping_id)
           }
+
           setShipping(selectedShipping)
         }
 

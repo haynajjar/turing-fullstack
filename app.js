@@ -1,5 +1,5 @@
 'use strict'
-
+global.fetch = require('node-fetch')
 const path = require('path')
 const AutoLoad = require('fastify-autoload')
 const fastifyNext = require('fastify-nextjs')

@@ -6,13 +6,9 @@ module.exports = function (fastify, opts, next) {
     return { address_1: args.address_1,
               address_2: args.address_2,
               city: args.city,
-              region: args.region,
               postal_code: args.postal_code,
               country: args.country,
-              shipping_region_id: args.shipping_region_id,
-              day_phone: args.day_phone,
-              eve_phone: args.eve_phone,
-              mob_phone: args.mob_phone
+              shipping_region_id: args.shipping_region_id
             }
   }
 
