@@ -25,17 +25,35 @@ function AddressForm({customer, step_action, setCheckoutStep, saveUser, setCheck
 
   // the action in the stepper will send update_address so the update will be triggered
   const customerAddress = customer ? customer.address : {}
-  const user = {address_1: '',address_2:'',shipping_region_id: 1, city: '', country: '', postal_code: '',...customerAddress}
+  const user = {address_1: '',address_2:'',shipping_region_id: 2, city: '', country: '', postal_code: '',...customerAddress}
   const [address, setAddress] = useState(user)
 
   const [processing, setProcessing] = useState(false)
   const [errorMessages,setErrorMessages] = useState({})
+  const [errorChecker,setErrorChecker] = useState(false)
 
   // fetch regions
   const [regions, executeQueryRegions] = useQuery({
     query: getRegions
   });
 
+  function findErrors(){
+    let errors = {}
+    for(let k in address){
+      // set list of not required attributes or override the validation method by the field name in validator file
+      if(!['address_2'].includes(k)){
+        let valid = validate.call(k,address[k])
+        Object.assign(errors,{[`${k}_error`]: !valid.success,[`${k}_helper`]: valid.helper})
+      }
+    }
+    setErrorMessages(errors)
+    return errors 
+  }
+
+  useEffect(() => {
+    if(errorChecker)
+      findErrors()
+  }, [address])
 
 
   useEffect(() =>{
@@ -43,18 +61,11 @@ function AddressForm({customer, step_action, setCheckoutStep, saveUser, setCheck
     // 0: trigger address submission, 1: trigger review , 2: trigger payment
     // send update address
     if(step_action === 0){
-      let errors = {}
-      for(let k in address){
-        // set list of not required attributes or override the validation method by the field name in validator file
-        if(!['address_2'].includes(k)){
-          let valid = validate.call(k,address[k])
-          Object.assign(errors,{[`${k}_error`]: !valid.success,[`${k}_helper`]: valid.helper})
-        }
-      }
-      setErrorMessages(errors)
+      let errors = findErrors()
       if(validate.error(errors)){
-        return;
+        setErrorChecker(true)
         setCheckoutStep(0)
+        return;
       }
       setProcessing(true)
       fetch('/user/address',{

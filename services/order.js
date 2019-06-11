@@ -22,12 +22,14 @@ module.exports = function (fastify, opts, next) {
             // TODO Need update
             // this looks bizzar, but mysql too!, (just for now)
             let orderId = result[0][0]['orderId'] || result[0][0][0]['orderId']
-            return {success: true,order_id: orderId}
+            reply.send({success: true,order_id: orderId})
           }catch(e){
             if(e.code == 'ER_BAD_NULL_ERROR'){
-              return {error: 'You need to get some products from the store'}
+              reply.send({error: 'You need to get some products from the store'})
+
+            }else{
+              reply.send({error: 'Internal Problem Detected'})
             }
-            return {error: 'Internal Problem Detected'}
             
           }
         }
@@ -43,11 +45,17 @@ module.exports = function (fastify, opts, next) {
       const Order = fastify.models.Order
       const args = JSON.parse(request.body)
       try{
-          await Order.forge({order_id: args.order_id}).save({status: 2})
-          return  {success: true}
+          const order = await Order.forge({order_id: args.order_id, customer_id: request.user.customer_id}).fetch()
+          if(order){
+            //order.set('status',2)
+            order.save({status: 2})
+            reply.send({success: true})
+          }else{
+            reply.send({error: "Can't find this order"})
+          }
         }catch(e){
           console.error(e)
-          return {error: 'Problem while trying to cancel your order, please try again later'}
+          reply.send({error: 'Problem while trying to cancel your order, please try again later'})
         }
       }
     })
@@ -63,7 +71,12 @@ module.exports = function (fastify, opts, next) {
 
         const args = JSON.parse(request.body)
         let exp_date = !!args.expiry_date && args.expiry_date.split('/')
-        // create token 
+        // get order total from db 
+        const order = await fastify.models.Order.forge({order_id: args.order_id, customer_id: request.user.customer_id}).fetch()
+        if(!order){
+          reply.send({error: "can't find your order" })
+          return;
+        }
         try{
           const token= await stripe.tokens.create({
             card: {
@@ -73,9 +86,6 @@ module.exports = function (fastify, opts, next) {
               cvc: args.cvc
             }
           });
-
-          // get order total from db 
-          const order = await fastify.models.Order.forge({order_id: args.order_id}).fetch()
 
           const total = Math.floor(order.serialize().total_amount*100)
 
@@ -90,10 +100,10 @@ module.exports = function (fastify, opts, next) {
           // update order status to confirmed
           await order.save({status: 1})
           
-          return {success: true}
+          reply.send({success: true})
 
         }catch(e){
-          return {error: e.message}
+          reply.send({error: e.message})
         }
       }
 

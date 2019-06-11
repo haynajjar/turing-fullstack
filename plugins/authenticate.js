@@ -11,6 +11,8 @@ module.exports = fp(function (fastify, opts, next) {
     try {
       
       request.headers.authorization= 'Bearer '+request.headers['user-key']
+      // this will add the object user to the request property
+      // we can then access directely request.user.email or request.user.customer_id
       await request.jwtVerify()
       
     } catch (err) {

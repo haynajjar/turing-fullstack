@@ -47,6 +47,8 @@ function PaymentForm({customer, step_action, saveUser, setCheckoutStep, setCheck
   const [card, setCard] = useState({expiry_date: '  /  ',card_number: '',card_name: '',cvc: ''})
   const [processing, setProcessing] = useState(false)
   const [errorMessages,setErrorMessages] = useState({})
+  const [errorChecker,setErrorChecker] = useState(false)
+
 
   const handleChange = name => event => {
     setValues({
@@ -55,21 +57,31 @@ function PaymentForm({customer, step_action, saveUser, setCheckoutStep, setCheck
     });
   };
 
+  function findErrors(){
+    let errors = {}
+    for(let k in card){
+      // set list of not required attributes or override the validation method by the field name in validator file
+      let valid = validate.call(k,card[k])
+      Object.assign(errors,{[`${k}_error`]: !valid.success,[`${k}_helper`]: valid.helper})
+    
+    }
+    setErrorMessages(errors)    
+    return errors;
+  }
+
+  useEffect(() => {
+    if(errorChecker)
+      findErrors()
+  }, [card])
+
    useEffect(() =>{
     // step_action is reponsible for triggering the action
     // 0: trigger card submission, 1: trigger review , 2: trigger payment
     // send update address
     if(step_action === 2){
-      let errors = {}
-      for(let k in card){
-        // set list of not required attributes or override the validation method by the field name in validator file
-        let valid = validate.call(k,card[k])
-        Object.assign(errors,{[`${k}_error`]: !valid.success,[`${k}_helper`]: valid.helper})
-      
-      }
-      console.log('errors ... ',errors)
-      setErrorMessages(errors)
+      let errors = findErrors()
       if(validate.error(errors)){
+        setErrorChecker(true)
         setCheckoutStep(2)
         return;
       }

@@ -178,7 +178,9 @@ function RootSchema(graphQL,graphQLBookshelf, {knex,
 								await ShoppingCart.forge({item_id: args.item_id}).save({attributes: args.attributes})
 								return true
 							}catch(e){
-								return e
+								// TODO through error
+								console.error(e)
+								return false
 							}
 						}
 					},
@@ -199,7 +201,9 @@ function RootSchema(graphQL,graphQLBookshelf, {knex,
 								await ShoppingCart.forge({item_id: args.item_id}).save({quantity: args.quantity})
 								return true
 							}catch(e){
-								return e
+								// TODO through error 
+								console.error(e)
+								return false
 							}
 						}
 					},
@@ -217,37 +221,9 @@ function RootSchema(graphQL,graphQLBookshelf, {knex,
 								await ShoppingCart.forge({item_id: args.item_id}).destroy()
 								return true
 							}catch(e){
-								return e
-							}
-						}
-					},
-
-					update_customer_address: {
-						type: graphQL.GraphQLBoolean,
-						args: {
-							customer_id: {
-								name: 'customer_id',
-								type: new graphQL.GraphQLNonNull(graphQL.GraphQLInt)
-							}
-						},
-						resolve: async function(modelInstance, args, context, info){
-							try{
-								await Customer.where({customer_id: args.customer_id})
-									.save({
-											address_1: args.address_1,
-											address_2: args.address_2,
-											city: args.city,
-											region: args.region,
-											postal_code: args.postal_code,
-											country: args.country,
-											shipping_region_id: args.shipping_region_id,
-											day_phone: args.day_phone,
-											eve_phone: args.eve_phone,
-											mob_phone: args.mob_phone
-										})
-								return true
-							}catch(e){
-								return e
+								// TODO through error
+								console.error(e)
+								return false
 							}
 						}
 					}

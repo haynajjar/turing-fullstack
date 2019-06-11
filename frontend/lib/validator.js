@@ -1,4 +1,5 @@
 export const validate ={
+	
 	required: function (name, value, helper) {
 		return value ? {success: true, helper: helper} : {success: false, helper: `${name} field is required`}
 	},
@@ -19,12 +20,16 @@ export const validate ={
 		const required = this.required(name,value,helper)
 		return required.success ? (valid(name,value,helper)) : required
 	},
+	postal_code: function(name,value,helper){
+		const re = /^\d+$/
+		return re.test(value) ? {success: true,helper: helper} : {success: false, helper: 'invalid zip code format'}
+	},
 	cvc: function(name,value,helper){
-		const re = /\d{3}/
-		return re.test(value)&&value.length==3 ? {success: true,helper: helper} : {success: false, helper: 'wrong format for cvc'}
+		const re = /^\d{3}$/
+		return re.test(value) ? {success: true,helper: helper} : {success: false, helper: 'wrong format for cvc'}
 	},
 	credit_card: function(name,value,helper){
-		const re = /\d{16}/
+		const re = /\d{16}$/
 		return re.test(value) ? {success: true,helper: helper} : {success: false, helper: 'wrong format for card number'}
 	},
 	expiry_date: function(name,value,helper){
@@ -48,6 +53,8 @@ export const validate ={
 			 		return this.email(name,value,helper)
 			 case 'password':
 			 		return this.password(name,value,helper)			 
+			 case 'postal_code':
+			 		return this.postal_code(name,value,helper)			 
 			 case 'cvc':
 			 		return this.cvc(name,value,helper)
 			 case 'expiry_date':

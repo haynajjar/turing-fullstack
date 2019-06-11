@@ -45,7 +45,8 @@ module.exports = function (fastify, opts, next) {
     const {email,password} = JSON.parse(request.body)
     try {
       const customer = await Customer.login(email,password)
-      const token = fastify.jwt.sign({email,name: customer.name})
+      //this will sign the user informations we can then access directely request.user.email or request.user.customer_id , see plugins/authenticate.js
+      const token = fastify.jwt.sign({email,name: customer.name,customer_id: customer.customer_id})
       const address = getAddress(customer)
       reply.send({success: true, customer: {customer_id: customer.customer_id,email: customer.email,name: customer.name,token,address,current_order: customer.current_order}})
     }catch(e){
@@ -65,10 +66,11 @@ module.exports = function (fastify, opts, next) {
         const Customer = fastify.models.Customer
         try{
            let customer = await Customer.where({customer_id: args.customer_id}).fetch()
+           // TODO - FIX this , it causes a bug when the user insert bad zipcode
             customer.save(getAddress(args))
-            return {success: true}
+            reply.send({success: true})
           }catch(e){
-            return {error: e.message}
+            reply.send({error: e.message})
           }
       }
 

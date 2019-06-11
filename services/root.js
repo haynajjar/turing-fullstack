@@ -16,11 +16,14 @@ module.exports = function (fastify, opts, next) {
   })
 
   fastify.post('/graphql', async (req,reply) => {
-  	let queryStr = req.body.query
-  	let variables = req.body.variables
-  	let result = await fastify.models.query(queryStr,variables)
-  	//console.log("RESULT .. ",result)
-  	reply.send(result)
+    try{
+      	let queryStr = req.body.query
+      	let variables = req.body.variables
+      	let result = await fastify.models.query(queryStr,variables)
+      	reply.send(result)
+      }catch(e){
+          reply.send({error: e.message})
+      }
   })
 
   next()
