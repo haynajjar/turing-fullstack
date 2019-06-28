@@ -165,7 +165,7 @@ function load(bookshelf){
 			     	result.data.pagination = context.pagination
 			     }
 			     resolve(result)
-			 }).catch((err) => {reject(err)})
+			 })
 			
 		})
 			
@@ -180,6 +180,7 @@ function load(bookshelf){
 			CategoryType, 
 			Order, 
 			Shipping, 
+			ShoppingCart,
 			query
 		}
 

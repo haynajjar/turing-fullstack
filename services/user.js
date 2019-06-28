@@ -12,20 +12,23 @@ module.exports = function (fastify, opts, next) {
             }
   }
 
-
+  
+  
   fastify.post('/signup', async (request, reply)=>{
 
-  	const {name,email,password} = JSON.parse(request.body)
+  	const {name,email,password} = typeof request.body === "string"  ? JSON.parse(request.body) : request.body
   	if(!(name && email && password)){
   		reply.send({success: false, message: 'Missing credentials, all name, email and password are required'})
   		return;
   	}
     try{
     	const Customer = fastify.models.Customer
+
     	const user = await Customer.forge({name,email,password}).save()
     	const token = fastify.jwt.sign({email,name,customer_id: user.id})
     	const customerRes = user.serialize({ shallow: true })
       const address = getAddress(customerRes)
+
       reply.send({success: true, customer: {customer_id: customerRes.customer_id,email: customerRes.email,name: customerRes.name,token,address}})
 
     }catch(e){
@@ -42,7 +45,7 @@ module.exports = function (fastify, opts, next) {
   fastify.post('/auth', async (request, reply)=>{
 
     const Customer = fastify.models.Customer
-    const {email,password} = JSON.parse(request.body)
+    const {email,password} = typeof request.body === "string"  ? JSON.parse(request.body) : request.body
     try {
       const customer = await Customer.login(email,password)
       //this will sign the user informations we can then access directely request.user.email or request.user.customer_id , see plugins/authenticate.js
@@ -55,25 +58,25 @@ module.exports = function (fastify, opts, next) {
 
   })
 
-    fastify.route({
-      method: 'POST',
-      url: '/user/address',
-      preHandler: fastify.auth([
-        fastify.authenticate
-      ]),
-      handler: async (request, reply)=>{
-        const args = JSON.parse(request.body)
-        const Customer = fastify.models.Customer
-        try{
-           let customer = await Customer.where({customer_id: request.user.customer_id}).fetch()
-            await customer.save(getAddress(args))
-            reply.send({success: true})
-          }catch(e){
-            reply.send({error: e.message})
-          }
-      }
+  fastify.route({
+    method: 'POST',
+    url: '/user/address',
+    preHandler: fastify.auth([
+      fastify.authenticate
+    ]),
+    handler: async (request, reply)=>{
+      const args = typeof request.body === "string"  ? JSON.parse(request.body) : request.body
+      const Customer = fastify.models.Customer
+      try{
+         let customer = await Customer.where({customer_id: request.user.customer_id}).fetch()
+          await customer.save(getAddress(args))
+          reply.send({success: true})
+        }catch(e){
+          reply.send({error: e.message})
+        }
+    }
 
-    })
+  })
 
 
 

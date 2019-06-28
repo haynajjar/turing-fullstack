@@ -41,7 +41,7 @@ function AddToCartBtn({product_id, cart_id,cart_update, cart_attributes, setUpSh
   return (
       <Button fullWidth={fullWidth} color="secondary" variant="contained" onClick={addToCart}>
         <ShoppingCartIcon />
-        Add to card 
+        Add to cart
       </Button>              
   );
 }

@@ -58,7 +58,7 @@ function Categories({department_id,category_id,selectCategory, setPage}) {
     <Box component="span" m={1}>
       <Paper className={classes.root}>
  
-        <MenuList>
+        <MenuList data-testid='categories'>
           {
             res.data.department.categories.map(({ category_id, name }) => (          
                   <MenuItem key={category_id} onClick={() => {setupCategory(category_id)}} selected={selectedCategory === category_id}>

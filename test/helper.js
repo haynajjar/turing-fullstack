@@ -5,7 +5,10 @@
 
 const Fastify = require('fastify')
 const fp = require('fastify-plugin')
-const App = require('../app')
+const bookshelf = require('fastify-bookshelfjs');
+const models = require('../models/index')
+
+const App = require('../app_test')
 
 // Fill in this config with all the configurations
 // needed for testing the application
@@ -14,21 +17,38 @@ function config () {
 }
 
 // automatically build and tear down our instance
-function build (t) {
+function build () {
   const app = Fastify()
 
-  // fastify-plugin ensures that all decorators
-  // are exposed for testing purposes, this is
-  // different from the production setup
+  initDb(app)
+
   app.register(fp(App), config())
 
-  // tear down our app after we are done
-  t.tearDown(app.close.bind(app))
-
   return app
+}
+
+function initDb(app){  
+  app.register(
+    bookshelf,
+    {
+      client: 'mysql',
+      connection: {
+        host     : process.env.MYSQL_HOST,
+        user     : process.env.MYSQL_USER,
+        password : process.env.MYSQL_PASSWORD,
+        database : process.env.MYSQL_DATABASE,
+        charset  : 'utf8'
+      }
+    },
+    console.error,
+  ).after(()=> {
+      app.bookshelf.plugin('pagination')
+      app.models = models.load(app.bookshelf)
+  })
 }
 
 module.exports = {
   config,
   build
 }
+

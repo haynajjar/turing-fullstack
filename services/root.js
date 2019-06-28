@@ -2,9 +2,8 @@
 
 module.exports = function (fastify, opts, next) {
  
-
   fastify.next('/',(app, req,reply) => {
-  	app.render(req.raw, reply.res, '/shop', req.params, {})
+    app.render(req.raw, reply.res, '/shop', req.params, {})
   })
   fastify.next('/shop')
   fastify.next('/login')

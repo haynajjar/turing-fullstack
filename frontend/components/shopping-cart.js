@@ -164,19 +164,19 @@ function ShoppingCart({customer, cart_update, cart_id, setUpShoppingCart}) {
 
   return (
     <div className={classes.root}>
-      <Badge badgeContent={cartTotal.sum_items || (customer && customer.current_order && 1)} color="secondary">
+      <Badge data-testid="cart-badge" badgeContent={cartTotal.sum_items || (customer && customer.current_order && 1)} color="secondary">
         <ButtonBase onClick={showCart}>
           
           <ShoppingCartIcon className={classes.img} />
         </ButtonBase>
       </Badge>
 
-      <Popper placement="top-start" anchorEl={anchorEl}  className={classes.popper}  open={openCart}  transition>
+      <Popper placement="top-start"  anchorEl={anchorEl}  className={classes.popper}  open={openCart}  transition>
           {!res.fetching && 
             <Paper >
 
-              <List className={classes.list}>
-                {res.data.shopping_cart.map((cart) => (
+              <List className={classes.list} data-testid='shopping-cart' >
+                {res.data.shopping_cart.map((cart,index) => (
                   
                   <React.Fragment key={cart.item_id}>
                     <ListItem>
@@ -188,7 +188,7 @@ function ShoppingCart({customer, cart_update, cart_id, setUpShoppingCart}) {
                         <Typography variant="caption" >
                           { priceFormat((cart.product.discounted_price||cart.product.price)*cart.quantity)}
                         </Typography>
-                        <Button className={classes.button} size="small" color="secondary" onClick={() => {removeFromCart(cart.item_id)}}>
+                        <Button data-testid={`remove-${index}`} className={classes.button} size="small" color="secondary" onClick={() => {removeFromCart(cart.item_id)}}>
                           <ClearIcon />
                         </Button>
                       </ListItemSecondaryAction>
@@ -199,7 +199,7 @@ function ShoppingCart({customer, cart_update, cart_id, setUpShoppingCart}) {
                 ))}
 
                 {!!cartTotal.total && 
-                  <ListItem>
+                  <ListItem data-testid="cart-total">
                     <ListItemText primary="Total"  />
                     <ListItemSecondaryAction>
                       <Typography variant="body1" >
@@ -210,7 +210,7 @@ function ShoppingCart({customer, cart_update, cart_id, setUpShoppingCart}) {
                 }
                 {customer && customer.current_order && !cartTotal.total &&
                   <ListItem>
-                    <Link href="/checkout" prefetch>
+                    <Link href="/checkout" >
                       <Button fullWidth variant="contained" color="secondary">
                         <ShoppingCartIcon />
                         Complete Order #{customer.current_order}
@@ -220,7 +220,7 @@ function ShoppingCart({customer, cart_update, cart_id, setUpShoppingCart}) {
                 }
                 {!!cartTotal.total &&
                   <ListItem>
-                    <Link href="/checkout" prefetch>
+                    <Link href="/checkout" >
                       <Button fullWidth variant="contained" color="secondary">
                         <ShoppingCartIcon />
                         Checkout

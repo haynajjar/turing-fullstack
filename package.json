@@ -8,6 +8,7 @@
   },
   "scripts": {
     "test": "tap test/**/*.test.js",
+    "test:frontend": "jest -c frontend/jest.config.js",
     "start": "fastify start app.js",
     "dev": "fastify start -l info -P app.js",
     "prod": "NODE_ENV=production fastify start app.js",
@@ -20,7 +21,7 @@
     "@material-ui/core": "^4.0.1",
     "@material-ui/icons": "^4.0.1",
     "data-prefetch-link": "^1.1.4",
-    "fastify": "^2.0.0",
+    "fastify": "^2.6.0",
     "fastify-auth": "^0.5.0",
     "fastify-autoload": "^0.6.0",
     "fastify-bookshelfjs": "^1.0.2",
@@ -37,9 +38,9 @@
     "next": "^8.1.0",
     "node-fetch": "^2.6.0",
     "p-graphql-bookshelfjs": "^1.0.9",
-    "react": "^16.8.6",
-    "react-dom": "^16.8.6",
-    "react-redux": "^5.0.1",
+    "react": "^16.9.0-alpha.0",
+    "react-dom": "^16.9.0-alpha.0",
+    "react-redux": "^7.1.0",
     "react-text-mask": "^5.4.3",
     "redux": "^3.6.0",
     "redux-devtools-extension": "^2.13.2",
@@ -50,6 +51,15 @@
     "urql": "^1.1.1"
   },
   "devDependencies": {
-    "tap": "^12.5.3"
+    "@testing-library/react": "^8.0.4",
+    "babel-core": "^6.26.3",
+    "babel-jest": "^24.8.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1",
+    "enzyme": "^3.10.0",
+    "enzyme-adapter-react-16": "^1.14.0",
+    "jest": "^24.8.0",
+    "react-test-renderer": "^16.9.0-alpha.0",
+    "tap": "^14.3.1"
   }
 }

@@ -8,7 +8,6 @@ const models = require('./models')
 
 
 module.exports = function (fastify, opts, next) {
-  
   fastify.register(
   bookshelf,
     {
@@ -59,6 +58,8 @@ module.exports = function (fastify, opts, next) {
     dir: path.join(__dirname, 'services'),
     options: Object.assign({}, opts)
   })
+
+  console.log("finish loading ... ", process.env.MYSQL_DATABASE)
 
   // Make sure to call next when done
   next()

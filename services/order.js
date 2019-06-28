@@ -13,22 +13,20 @@ module.exports = function (fastify, opts, next) {
         fastify.authenticate
       ]),
       handler: async (request, reply)=>{
-        const args = JSON.parse(request.body)
+        const args = typeof request.body === "string"  ? JSON.parse(request.body) : request.body
         const knex = fastify.bookshelf.knex
         try{
            // tax is by default 1, otherwise it should be a store configuration variable
             const tax_id =1
-            const result = await knex.raw('CALL shopping_cart_create_order(?,?,?,?)',[args.cart_id,args.customer_id,args.shipping_id,tax_id])
-            // TODO Need update
-            // this looks bizzar, but mysql too!, (just for now)
-            let orderId = result[0][0]['orderId'] || result[0][0][0]['orderId']
+            const result = await knex.raw('CALL shopping_cart_create_order(?,?,?,?)',[args.cart_id,request.user.customer_id,args.shipping_id,tax_id])
+            let orderId = result[0][0][0]['orderId']
             reply.send({success: true,order_id: orderId})
           }catch(e){
             if(e.code == 'ER_BAD_NULL_ERROR'){
-              reply.send({error: 'You need to get some products from the store'})
+              reply.send({error: 'You need to get some products from the store',status: 400})
 
             }else{
-              reply.send({error: 'Internal Problem Detected'})
+              reply.send({error: 'Internal Problem Detected', status: 500})
             }
             
           }
@@ -43,7 +41,7 @@ module.exports = function (fastify, opts, next) {
       ]),
       handler: async (request, reply)=>{
       const Order = fastify.models.Order
-      const args = JSON.parse(request.body)
+      const args = typeof request.body === "string"  ? JSON.parse(request.body) : request.body
       try{
           const order = await Order.forge({order_id: args.order_id, customer_id: request.user.customer_id}).fetch()
           if(order){
@@ -51,11 +49,11 @@ module.exports = function (fastify, opts, next) {
             order.save({status: 2})
             reply.send({success: true})
           }else{
-            reply.send({error: "Can't find this order"})
+            reply.send({error: "Can't find this order", status: 400})
           }
         }catch(e){
           console.error(e)
-          reply.send({error: 'Problem while trying to cancel your order, please try again later'})
+          reply.send({error: 'Problem while trying to cancel your order, please try again later', status: 500})
         }
       }
     })
@@ -69,7 +67,7 @@ module.exports = function (fastify, opts, next) {
       ]),
       handler: async (request, reply)=>{
 
-        const args = JSON.parse(request.body)
+        const args = typeof request.body === "string"  ? JSON.parse(request.body) : request.body
         let exp_date = !!args.expiry_date && args.expiry_date.split('/')
         // get order total from db 
         try{

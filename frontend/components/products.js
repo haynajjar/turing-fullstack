@@ -102,7 +102,7 @@ function Products({department_id,category_id, page_size, page ,setPageCount}) {
 
   return (
     <div>
-      <Grid container className={classes.root} spacing={2}>
+      <Grid container data-testid='products' className={classes.root} spacing={2}>
             {res.fetching && <Typography gutterBottom variant="h5" component="h4" noWrap>
                           Loading ...
                         </Typography>

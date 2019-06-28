@@ -114,7 +114,7 @@ function ProductDetails({product_id, cart_id,cart_update, cart_attributes, updat
             
 
             
-            <Grid container>
+            <Grid container data-testid="product-details">
               <Grid item md={3} sm={6} xs={12}>
               </Grid>
               <Grid item md={3} sm={6} xs={12}>

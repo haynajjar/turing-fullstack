@@ -32,23 +32,20 @@ class Shop extends React.Component {
   render(){
     return (
       <React.Fragment >
+        <div>Hello Next.js 2</div>
         <ShopAppBar />
         <Grid container>
           <Grid item xs={12}>
           </Grid>
           <Grid item md={3}>
             <Departments />
-            <Categories />
-            
+            <Categories /> 
           </Grid>
-            
-            
           <Grid item md={9} >
             <Pagination />
             <Box m={2} >
               <Products />
             </Box>
-
           </Grid>
 
         </Grid>

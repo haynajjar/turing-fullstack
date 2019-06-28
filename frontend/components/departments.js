@@ -45,7 +45,7 @@ function Departments({department_id, selectDepartment, selectCategory, setPage})
     if(selectedDepartment != department_id)
       setSelectedDepartment(department_id)
   },[department_id])
-  
+    
   if (!res.data) {
     return null;
   }
@@ -58,7 +58,7 @@ function Departments({department_id, selectDepartment, selectCategory, setPage})
           </Typography>
       </Box>
       <Paper className={classes.root}>
-        <MenuList>
+        <MenuList data-testid="departments">
           {
             res.data.departments.map(({ department_id, name }) => (          
                   <MenuItem key={department_id} onClick={() => {setupDepartment(department_id)}} selected={department_id === selectedDepartment}>
