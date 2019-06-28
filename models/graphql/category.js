@@ -23,6 +23,10 @@ function CategorySchema(graphQL, graphQLBookshelf, {ProductType,Category,Product
 	            	pageSize: {
 	            		name: 'pageSize',
 	            		type: new graphQL.GraphQLNonNull(graphQL.GraphQLInt)
+	            	},
+	            	priceRange: {
+	            		name: 'priceRange',
+	            		type: new graphQL.GraphQLList(graphQL.GraphQLInt)
 	            	}
 
 	            },
@@ -36,7 +40,10 @@ function CategorySchema(graphQL, graphQLBookshelf, {ProductType,Category,Product
 					 		qb.innerJoin('product_category','product.product_id','product_category.product_id')
 					 		qb.innerJoin('category','product_category.category_id','category.category_id')
 					 		qb.where('category.category_id',category_id)
-
+					 		if(args.priceRange){
+						 		qb.where('price','>',args.priceRange[0])
+								qb.where('price','<',args.priceRange[1])
+					 		}
 					 	})
 					 	
 				 	}

@@ -7,8 +7,8 @@ import { setUpShoppingCart } from '../store'
 import { useMutation } from 'urql';
 
 const addToCartMutation = `
-  mutation AddToCart ($product_id: Int!,$cart_id: String!,$attributes: String!){
-    add_to_cart(product_id: $product_id,cart_id: $cart_id,attributes: $attributes,quantity: 1){
+  mutation AddToCart ($product_id: Int!,$cart_id: String!,$attributes: String!,$quantity: Int!){
+    add_to_cart(product_id: $product_id,cart_id: $cart_id,attributes: $attributes,quantity: $quantity){
       item_id,
       quantity,
       cart_id,
@@ -18,7 +18,7 @@ const addToCartMutation = `
   }
 `
 
-function AddToCartBtn({product_id, cart_id,cart_update, cart_attributes, setUpShoppingCart, fullWidth}) {
+function AddToCartBtn({product_id, quantity, cart_id,cart_update, cart_attributes, setUpShoppingCart, fullWidth}) {
 
   // use mutation for add to cart
   const [addCartRes, executeMutation] = useMutation(addToCartMutation);
@@ -26,7 +26,7 @@ function AddToCartBtn({product_id, cart_id,cart_update, cart_attributes, setUpSh
   function addToCart(){
     // to prevent multi requests trigger we need to set a state 
     if(!addCartRes.fetching){
-      executeMutation({product_id: product_id,cart_id: cart_id,attributes: cart_attributes}).then(res => {
+      executeMutation({product_id: product_id,cart_id: cart_id,attributes: cart_attributes,quantity: (quantity||1)}).then(res => {
         // update global cart state with new time (cart_update) 
         // cart_update will contain null at the first time, so this is actually initializing the cart
         if(!cart_update){

@@ -24,13 +24,31 @@ function RootSchema(graphQL,graphQLBookshelf, {knex,
 			            	pageSize: {
 			            		name: 'pageSize',
 			            		type: new graphQL.GraphQLNonNull(graphQL.GraphQLInt)
+			            	},
+			            	keyword: {
+			            		name: 'keyword',
+			            		type: graphQL.GraphQLString
+			            	},
+			            	priceRange: {
+			            		name: 'priceRange',
+			            		type: new graphQL.GraphQLList(graphQL.GraphQLInt)
 			            	}
 
 			            },
 			            resolve: function (modelInstance,args,context,info){
-						 	let {pageSize,page} = args
+						 	let {pageSize,page,keyword,priceRange} = args
 						 	const resolverFn = graphQLBookshelf.resolverFactory(Product);
-		                	return resolverFn(modelInstance, {}, context, info, null, {pageSize,page});
+						 	const extra = (model) => {
+						 		model.query((qb)=> {
+						 			if(keyword)
+							 			qb.where('description','like',`%${keyword}%`)
+							 		if(priceRange){
+								 		qb.where('price','>',priceRange[0])
+								 		qb.where('price','<',priceRange[1])
+							 		}
+							 	})
+						 	}
+		                	return resolverFn(modelInstance, {}, context, info, extra, {pageSize,page});
 						}
 			        },
 			        product: {

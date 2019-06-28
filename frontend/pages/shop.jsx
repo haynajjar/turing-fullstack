@@ -8,6 +8,8 @@ import Categories from '../components/categories'
 import Products from '../components/products'
 import Pagination from '../components/pagination'
 import ShopAppBar from '../components/shop-app-bar'
+import SearchInput from '../components/search-input'
+import PriceRange from '../components/price-range'
 
 import { connect } from 'react-redux'
 
@@ -38,8 +40,10 @@ class Shop extends React.Component {
           <Grid item xs={12}>
           </Grid>
           <Grid item md={3}>
+            <SearchInput />
             <Departments />
             <Categories /> 
+            <PriceRange />
           </Grid>
           <Grid item md={9} >
             <Pagination />

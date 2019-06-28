@@ -28,6 +28,10 @@ function DepartmentSchema(graphQL, graphQLBookshelf, {knex, CategoryType,Product
 	            	pageSize: {
 	            		name: 'pageSize',
 	            		type: new graphQL.GraphQLNonNull(graphQL.GraphQLInt)
+	            	},
+	            	priceRange: {
+	            		name: 'priceRange',
+	            		type: new graphQL.GraphQLList(graphQL.GraphQLInt)
 	            	}
 
 	            },
@@ -40,7 +44,10 @@ function DepartmentSchema(graphQL, graphQLBookshelf, {knex, CategoryType,Product
 					 		qb.innerJoin('category','product_category.category_id','category.category_id')
 					 		qb.innerJoin('department','category.department_id','department.department_id')
 					 		qb.where('department.department_id',department_id)
-
+					 		if(args.priceRange){
+						 		qb.where('price','>',args.priceRange[0])
+								qb.where('price','<',args.priceRange[1])
+					 		}
 					 	})
 					 	
 				 	}

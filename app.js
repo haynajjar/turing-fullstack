@@ -59,7 +59,6 @@ module.exports = function (fastify, opts, next) {
     options: Object.assign({}, opts)
   })
 
-  console.log("finish loading ... ", process.env.MYSQL_DATABASE)
 
   // Make sure to call next when done
   next()

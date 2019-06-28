@@ -40,7 +40,7 @@ const useStyles = makeStyles( theme => {return {
 
 
 const productQuery = `
- products(page: $page,pageSize: $pageSize) {
+     {
         product_id
         name
         description
@@ -52,9 +52,10 @@ const productQuery = `
 
 // get products by department
 const getDepartmentProducts = `
-  query DepartmentProcuts($department_id: Int!, $page: Int!, $pageSize: Int!){
+  query DepartmentProcuts($department_id: Int!, $page: Int!, $pageSize: Int!,$priceRange: [Int!]){
     department(department_id: $department_id) {
       name
+      products(page: $page,pageSize: $pageSize, priceRange: $priceRange)
       ${productQuery}
     }
   }
@@ -62,26 +63,29 @@ const getDepartmentProducts = `
 
 
 const getCategoryProducts = `
-  query CategoryProcuts($category_id: Int!, $page: Int!, $pageSize: Int!){
+  query CategoryProcuts($category_id: Int!, $page: Int!, $pageSize: Int!,$priceRange: [Int!]){
     category(category_id: $category_id) {
       name
+      products(page: $page,pageSize: $pageSize, priceRange: $priceRange)
       ${productQuery}
     }
   }
 `;
 
 const getAllProducts = `
-  query Procuts($page: Int!, $pageSize: Int!){
+  query Procuts($page: Int!, $pageSize: Int!, $keyword: String!,$priceRange: [Int!]){
+      products(page: $page,pageSize: $pageSize, keyword: $keyword, priceRange: $priceRange)
       ${productQuery}
   }
 `;
 
-function Products({department_id,category_id, page_size, page ,setPageCount}) {
+function Products({department_id,category_id, page_size, page , keyword , price_range ,setPageCount}) {
 
   const classes = useStyles();
   
-  const variables={page,pageSize: page_size}
-  const query = category_id ? getCategoryProducts : (department_id ? getDepartmentProducts : getAllProducts)
+  const variables={page,pageSize: page_size,keyword,priceRange: price_range}
+
+  const query = category_id&&!keyword ? getCategoryProducts : (department_id&&!keyword ? getDepartmentProducts : getAllProducts)
     
   const [res, executeQuery] = useQuery({
     query,
@@ -91,7 +95,7 @@ function Products({department_id,category_id, page_size, page ,setPageCount}) {
   useEffect( () => {
     if(res.data && res.data.pagination) 
       setPageCount(res.data.pagination.pageCount)
-  })
+  },[res]) 
 
   if (!res.data) {
     return null;
@@ -107,7 +111,7 @@ function Products({department_id,category_id, page_size, page ,setPageCount}) {
                           Loading ...
                         </Typography>
               }
-            {!res.fetching && data && data.products.map(({product_id,name,description,thumbnail,price,discounted_price}) => (
+            {!res.fetching && data && data.products && data.products.map(({product_id,name,description,thumbnail,price,discounted_price}) => (
               <Grid key={product_id} item md={3} sm={6} xs={12}>
                   <Card  className={classes.card}>
                     <Link href={"/product/"+product_id} >
@@ -147,8 +151,8 @@ const mapDispatchToProps = dispatch =>
   bindActionCreators({ selectCategory, setPageCount }, dispatch)
 
 const mapStateToProps = state => {
-  const { department_id, category_id, page, page_size } = state
-  return { department_id, category_id, page, page_size }
+  const { department_id, category_id, page, page_size, keyword, price_range } = state
+  return { department_id, category_id, page, page_size, keyword, price_range }
 }
 
 export default connect(mapStateToProps,mapDispatchToProps)(Products)

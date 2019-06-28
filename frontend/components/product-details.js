@@ -1,10 +1,11 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import ButtonBase from '@material-ui/core/ButtonBase';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Link from '@material-ui/core/Link';
 import Typography from '@material-ui/core/Typography';
+import TextField from '@material-ui/core/TextField';
 import Breadcrumbs from '@material-ui/core/Breadcrumbs';
 import Paper from '@material-ui/core/Paper';
 import { connect } from 'react-redux'
@@ -72,8 +73,9 @@ function ProductDetails({product_id, cart_id,cart_update, cart_attributes, updat
 
   const classes = useStyles()  ;
 
-  const [imgName, setImageName] = React.useState(null)
-  const [selectedAttributeValues, setSelectedAttributeValues] = React.useState({})
+  const [imgName, setImageName] = useState(null)
+  const [selectedAttributeValues, setSelectedAttributeValues] = useState({})
+  const [quantity, setQuantity] = useState(1);
 
   const [res, executeQuery] = useQuery({
     query: getProduct,
@@ -173,8 +175,22 @@ function ProductDetails({product_id, cart_id,cart_update, cart_attributes, updat
                   )}
                 </Grid>
                 <Grid item>
-                 
-                  <AddToCartBtn product_id={product_id} />
+                  <TextField
+                    id="standard-number"
+                    label="Quantity"
+                    value={ quantity }
+                    type="number"
+                    onChange={(evt) => {setQuantity(parseInt(evt.target.value))}}
+                    className={classes.qtInput}
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                    inputProps={{min: 1}}
+                  />
+                </Grid>
+                    
+                <Grid item>
+                  <AddToCartBtn product_id={product_id} quantity={quantity} />
                 </Grid>
               </Grid>
               <Grid item>

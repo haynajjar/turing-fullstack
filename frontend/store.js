@@ -28,7 +28,9 @@ const exampleInitialState = {
   checkout_step: 0,
   step_action: null,
   shipping_id: '0',
-  checkout_error: null
+  checkout_error: null,
+  keyword: '',
+  price_range: [1,100]
 }
 
 export const actionTypes = {
@@ -49,6 +51,8 @@ export const actionTypes = {
   SET_CHECKOUT_STEP: 'SET_CHECKOUT_STEP',
   SET_SHIPPING_ID: 'SET_SHIPPING_ID',
   SET_CHECKOUT_ERROR: 'SET_CHECKOUT_ERROR',
+  SET_KEYWORD: 'SET_KEYWORD',
+  SET_PRICE_RANGE: 'SET_PRICE_RANGE',
 
   // action to trigger on the checkout steps
   // 0: trigger address submission, 1: trigger review , 2: trigger payment
@@ -108,6 +112,14 @@ export const reducer = (state = exampleInitialState, action) => {
       return Object.assign({}, state, {
         checkout_error: action.checkout_error
       })
+    case actionTypes.SET_KEYWORD:
+      return Object.assign({}, state, {
+        keyword: action.keyword
+      })
+    case actionTypes.SET_PRICE_RANGE:
+      return Object.assign({}, state, {
+        price_range: action.price_range
+      })
    
     default:
       return state
@@ -164,6 +176,14 @@ export const setShipping = (shipping_id) => {
 
 export const setCheckoutError = (checkout_error) => {
   return { type: actionTypes.SET_CHECKOUT_ERROR, checkout_error }
+}
+
+export const setKeyword = (keyword) => {
+  return { type: actionTypes.SET_KEYWORD, keyword }
+}
+
+export const setPriceRange = (price_range) => {
+  return { type: actionTypes.SET_PRICE_RANGE, price_range }
 }
 
 const persistConfig = {

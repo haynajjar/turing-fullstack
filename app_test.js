@@ -39,7 +39,6 @@ module.exports = function (fastify, opts, next) {
     ignorePattern: /root/
   })
 
-  // console.log("finish loading ... ", process.env.MYSQL_DATABASE)
 
 
   // Make sure to call next when done
