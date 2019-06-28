@@ -145,19 +145,19 @@ PARAMS
 {
     variables: {product_id: 1}
     query: `{
-		    product(product_id: 1) { 
-                 product_id, 
-                  name, 
-                  description,
-                  attributes {
-                    name
-                    attribute_values{
-                      attribute_value_id
-                      value
-                    }
-                  }
-                }
-		      }`
+		 product(product_id: 1) { 
+			 product_id, 
+			  name, 
+			  description,
+			  attributes {
+			    name
+			    attribute_values{
+			      attribute_value_id
+			      value
+			    }
+			  }
+			}
+		}`
 }
 ```
 looking at the example query above we try to fetch a product , hist attributes and the attribute_values related to the attributes, but the case is to find the attribute_values related to the product in question as well as the attribute requested, this is the responsability of the resolver, the implementation of how the resolver work to find the attribute_values related to the product in question can be found in `models/graphql/attribute.js`
