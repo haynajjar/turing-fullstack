@@ -2,6 +2,7 @@
 
 This project presents the fullstack turing challenge "Tshirtstore"
 To test the project online you can visit [turing.fouita.com](http://turing.fouita.com) 
+See [video demo here](https://drive.google.com/file/d/1yJd6qSC5rs6Eg8fg75rJDsGx-yJLgJjf/view?usp=sharing) 
 
 # Table of Contents
 1. [Installation](#installation)
@@ -15,6 +16,7 @@ To test the project online you can visit [turing.fouita.com](http://turing.fouit
 9. [Made by](#made-by)
 
 ## Installation
+Please make sure you are using nodejs 12.4.0+
 
 ### Initiate the database and Set your environment values
 You can add them to your `.bashrc` file
@@ -205,7 +207,7 @@ All the application REST request are available under `services` directory
 | POST | /order/charge | `order_id, card_name, card_number, expiry_date (mm/yy), cvc` | yes | charge user using stripe api with the order amount and update order status to 1 (confirmed) |
 
 ## Work not yet done
- - Blocking bug after few requests (investigating ... )
+ - ~~Blocking bug after few requests (investigating ... )~~ this was fixed by updating from nodejs 11.0.0 to 12.4.0
  - Authentication using social media
  - Unit Test Cases 
  - Still some things to fix (exp: caching user address (can be done using logout and login again))
