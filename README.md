@@ -13,7 +13,6 @@ See [video demo here](https://drive.google.com/file/d/1yJd6qSC5rs6Eg8fg75rJDsGx-
 6. [Root Queries](#root-queries)
 7. [Services](#services)
 8. [Test cases](#test-cases)
-8. [Work not yet done](#work-not-yet-done)
 9. [Made by](#made-by)
 
 ## Installation
