@@ -62,46 +62,9 @@ function load(bookshelf){
 	const ShippingRegion = model.extend(ShippingRegionRecord())
 	const Tax = model.extend(TaxRecord())
 
-
-
-	// ADD them to test cases
-
-	// fetch products
-	// Product.where({product_id: 1}).fetch({withRelated: ['categories']}).then(product => {
-	// 	//console.log("LIST products ... ", products)
-	// 	//console.log("product", JSON.stringify(product))
-	// 	console.log("First product categories ...", JSON.stringify(product.related('categories')))
-	// })
-
-	// fetch categories
-	// Category.where({category_id: 1}).fetch({withRelated: ['products']}).then(category => {
-		
-	// 	console.log("First category products ...", JSON.stringify(category.related('products')))
-	// })
-
-	// Department.where({department_id: 1}).fetch({withRelated: ['product_categories.product']}).then(dep => {
-	// 	//console.log('JSON... ',dep.toJSON())
-	//  	console.log("First department products ...", JSON.stringify(dep.related('product_categories'),null,2))
-	//  })	
-
-	// Product.where({product_id: 1}).fetch({withRelated: ['attribute_values']}).then(dep => {
-	// 	//console.log('JSON... ',dep.toJSON())
-	//  	console.log("First department products ...", JSON.stringify(dep.related('attribute_values'),null,2))
-	//  })	
-
-	// ShoppingCart.where({item_id: 16}).fetch({withRelated: ['product']}).then(dep => {
-	// 	//console.log('JSON... ',dep.toJSON())
-	//  	console.log("First department products ...", JSON.stringify(dep.related('product'),null,2))
-	//  })	
-
-	//console.log("Model instance ... ", Department.where({department_id: 1}))
-	// initialize graphql for the models
-	// TODO -- add product attributes types
-
-	// Customer.where({customer_id: 1}).fetch({require: true,withRelated: ['orders']}).then(async customer => {
-	// 			  const order = await customer.related('orders').findWhere({status: 0})
-	// 		      console.log('current order ...',order.serialize({shallow: true}))
-	// })
+	/*
+		Add types with schema definition
+	*/
 
 	const AttributeValueType = AttributeValueSchema(graphQL, graphQLBookshelf)
 	const AttributeType = AttributeSchema(graphQL, graphQLBookshelf, {AttributeValueType,Attribute})

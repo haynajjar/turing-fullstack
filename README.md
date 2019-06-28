@@ -12,6 +12,7 @@ See [video demo here](https://drive.google.com/file/d/1yJd6qSC5rs6Eg8fg75rJDsGx-
 5. [API Requests](#api-requests)
 6. [Root Queries](#root-queries)
 7. [Services](#services)
+8. [Test cases](#test-cases)
 8. [Work not yet done](#work-not-yet-done)
 9. [Made by](#made-by)
 
@@ -145,19 +146,19 @@ PARAMS
 {
     variables: {product_id: 1}
     query: `{
-				        	product(product_id: 1) { 
-				                  product_id, 
-				                  name, 
-				                  description,
-				                  attributes {
-				                    name
-				                    attribute_values{
-				                      attribute_value_id
-				                      value
-				                    }
-				                  }
-				            }
-				      }`
+		    product(product_id: 1) { 
+                 product_id, 
+                  name, 
+                  description,
+                  attributes {
+                    name
+                    attribute_values{
+                      attribute_value_id
+                      value
+                    }
+                  }
+                }
+		      }`
 }
 ```
 looking at the example query above we try to fetch a product , hist attributes and the attribute_values related to the attributes, but the case is to find the attribute_values related to the product in question as well as the attribute requested, this is the responsability of the resolver, the implementation of how the resolver work to find the attribute_values related to the product in question can be found in `models/graphql/attribute.js`
@@ -206,12 +207,26 @@ All the application REST request are available under `services` directory
 | POST | /order/cancel | `order_id` | yes | update order status to 2 (cancelled) |
 | POST | /order/charge | `order_id, card_name, card_number, expiry_date (mm/yy), cvc` | yes | charge user using stripe api with the order amount and update order status to 1 (confirmed) |
 
-## Work not yet done
- - ~~Blocking bug after few requests (investigating ... )~~ this was fixed by updating from nodejs 11.0.0 to 12.4.0
- - Authentication using social media
- - Unit Test Cases 
- - Still some things to fix (exp: caching user address (can be done using logout and login again))
+## Test cases
+the application uses the default database for testing, 
+to test the application you need to follow the steps below
 
+### Front end testing
+Frontend tests uses ```jest``` alongside with ```react-testing-library```
+```sh
+# make sure you run the dev server
+$ npm run dev
+# run the frontend tests
+$ npm run test:frontend
+```
+
+### Backend tests
+in the backend we tested the services using ```tap``` and ```supertest```
+```sh
+# to run the backend tests just type
+$ npm run test
+```
+ 
 # Made by
 Abdelhay NAJJAR, 
 for more details about the project please contact dev.abdelhay@gmail.com
